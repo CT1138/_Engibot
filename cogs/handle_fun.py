@@ -12,18 +12,12 @@ class hFun(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @dCommands.hybrid_group(name="fun", with_app_command=True, invoke_without_command=True)
-    async def fun(self, ctx):
-        RESPONSE, URL = uResponse.getRandom("failedKill")
-        await ctx.send(RESPONSE)
-        await ctx.defer()
-
-    @fun.command("hello", with_app_command=True)
+    @dCommands.command("hello", with_app_command=True)
     async def hello(self, ctx):
         await ctx.reply("i know what kind of man you are")
         await ctx.defer()
 
-    @fun.command("tf2", with_app_command=True)
+    @dCommands.command("tf2", with_app_command=True)
     async def tf2(self, ctx, arg1):
         if(arg1 == "") : 
             await ctx.reply("Please provide a class!")
@@ -42,23 +36,23 @@ class hFun(dCommands.Cog):
             await ctx.reply("You did not provide a valid class!")
         await ctx.defer()
 
-    @fun.command("explode", with_app_command=True)
+    @dCommands.command("explode", with_app_command=True)
     async def explode(self, ctx):
         RESPONSE, URL = uResponse.getRandom("explode")
         await ctx.reply(RESPONSE)
         await ctx.defer()
 
-    @fun.command("avatar", with_app_command=True)
+    @dCommands.command("avatar", with_app_command=True)
     async def avatar(self, ctx, args):
         await actions.Avatar.collect(ctx)
         await ctx.defer()
 
-    @fun.command("flag", with_app_command=True)
+    @dCommands.command("flag", with_app_command=True)
     async def flag (self, ctx, arg1, arg2):
         await actions.Flag.pride(ctx, arg1, arg2)
         await ctx.defer()
 
-    @fun.command("gif", with_app_command=True,)
+    @dCommands.command("gif", with_app_command=True,)
     async def gif (self, ctx: dCommands.Context, index=-1):
         if index == -1 :
             RESPONSE, URL = uResponse.getRandom("random")
@@ -71,15 +65,15 @@ class hFun(dCommands.Cog):
         await ctx.defer()
         
 
-    @fun.command("add", with_app_command=True)
-    async def add (self, ctx, arg1, arg2):
+    @dCommands.command("add", with_app_command=True)
+    async def add (self, ctx, type:str, content:str):
         print("Called add")
-        STRING = uString.shorten_string(arg2, 2000)
+        STRING = uString.shorten_string(content, 2000)
         RESPONSE, URL = uResponse.getRandom("finishAdd")
 
-        match arg1:
+        match type:
             case "gif":
-                if not arg2 :
+                if not content :
                     await ctx.reply("Please provide a gif to add") 
                     return
                 try: 
@@ -92,7 +86,7 @@ class hFun(dCommands.Cog):
                 except Exception as e:
                     await ctx.reply(e)
             case "response":
-                if not arg2 :
+                if not content :
                     await ctx.reply("Please provide a response to add")
                     return
                 try:
