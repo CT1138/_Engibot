@@ -34,7 +34,6 @@ class hListener(dCommands.Cog):
                 return
 
         await actions.Silly.reply_random(message)
-        await actions.Silly.reply_bro(message)
 
     @dCommands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
