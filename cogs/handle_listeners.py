@@ -1,11 +1,12 @@
 import discord
 from discord.ext import commands as dCommands
+import actions.Replies as uReply
+import actions.Response as uResponse
 import util.utils_json as ujReader
-import util.Response as uResponse
 import util.utils_cache as uCache
 import actions
 
-CONFIG = ujReader.read("./data/config.json")
+CONFIG = ujReader.read("./__data/config.json")
 # VARIABLES
 STARBOARD_EMOJI = CONFIG["emojis"]["starboard"]
 PREFIX = CONFIG["prefix"]
@@ -18,8 +19,8 @@ class hListener(dCommands.Cog):
 
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        CHANNELS = ujReader.read("./data/channels.json")
-        IGNORES = ujReader.read("./data/ignores.json")["ignores"]
+        CHANNELS = ujReader.read("./__data/channels.json")
+        IGNORES = ujReader.read("./__data/ignores.json")["ignores"]
 
         # Do not do anything if :
         if message.author.id in IGNORES: return # author is in ignore list
@@ -33,13 +34,13 @@ class hListener(dCommands.Cog):
                 await message.add_reaction(STARBOARD_EMOJI)
                 return
 
-        await actions.Silly.reply_random(message)
-        await actions.Silly.reply_bro(message)
+        await uReply.reply_random(message)
+        await uReply.reply_bro(message)
 
     @dCommands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
         # Return if the user is a bot or if there is no image or the image is not in our art channel
-        CHANNELS = ujReader.read("./data/channels.json")
+        CHANNELS = ujReader.read("./__data/channels.json")
         if(user.bot) : return
         if not reaction.message.attachments : return
         if not reaction.message.channel.id in CHANNELS["art"] : return

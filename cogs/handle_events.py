@@ -1,12 +1,10 @@
 import discord
 from discord.ext import commands as dCommands
 import util.utils_json as ujReader
-import util.Response as uResponse
-import util.utils_cache as uCache
+import actions.Response as uResponse
 import util.utils_math as uMath
-import actions
 
-CONFIG = ujReader.read("./data/config.json")
+CONFIG = ujReader.read("./__data/config.json")
 # VARIABLES
 STARBOARD_EMOJI = CONFIG["emojis"]["starboard"]
 PREFIX = CONFIG["prefix"]
@@ -19,7 +17,7 @@ class hEvent(dCommands.Cog):
 
     async def on_typing(channel, user: discord.Member, when):
         if(user.bot) : return
-        IGNORES = ujReader.read("./data/ignores.json")["ignores"]
+        IGNORES = ujReader.read("./__data/ignores.json")["ignores"]
         if user.id in IGNORES: return
 
         RESPONSE, URL = uResponse.getRandom("onSpeaking", user.display_name)

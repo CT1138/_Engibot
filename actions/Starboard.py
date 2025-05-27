@@ -3,7 +3,7 @@ import util.utils_cache as uCache
 import discord
 # Data
 uCache.starboard_load()
-CONFIG = ujReader.read("./data/config.json")
+CONFIG = ujReader.read("./__data/config.json")
 # SETUP
 
 # VARIABLES
@@ -13,7 +13,7 @@ STAFF = CONFIG["roles"]["staff"]
 STATUS = CONFIG["status"]
 
 async def _starboard_cache(bot):
-    CHANNELS = ujReader.read("./data/channels.json")
+    CHANNELS = ujReader.read("./__data/channels.json")
     for channel_id in CHANNELS["art"]:
         channel = bot.get_channel(channel_id)
         if channel is None:

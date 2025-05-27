@@ -1,6 +1,6 @@
 import discord
 from util import utils_json
-PATH = "./data/commands.json"
+PATH = "./__data/commands.json"
 JSON = utils_json.read(PATH)
 
 def help():

@@ -2,8 +2,10 @@ from util import utils_json as jReader
 from util import utils_string as uString
 import random
 
+# TODO: REPLACE JSON USAGE WITH A MYSQL SERVER
+
 def getArray(asTerm="!placeholder", asParam="!placeholder"):
-    RESPONSES = jReader.read("./data/responses.json")[asTerm]
+    RESPONSES = jReader.read("./__data/responses.json")[asTerm]
     STRINGS = [s.replace("{x}", asParam) for s in RESPONSES["_responses"]]
     URLS = RESPONSES["_urls"]
 
@@ -50,7 +52,7 @@ def add(asTerm: str, abResponse:bool, asPhrase: str):
         else:
             KEY = "_urls"
         jReader.addList(
-            file_path="./data/responses.json",
+            file_path="./__data/responses.json",
             key_path=[asTerm, KEY],
             item=asPhrase
         )
