@@ -37,7 +37,8 @@ class hListener(dCommands.Cog):
     
         # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
         if aiflagged:
-            if not any(role.id == 1372047838770626640 for role in message.author.roles):
+            # if not any(role.id == 1372047838770626640 for role in message.author.roles):
+            if not message.author.id == 1058073516186026095:
                 StaffChannel = self.bot.get_channel(STAFFLOG)
 
                 embed = discord.Embed(
@@ -71,7 +72,8 @@ class hListener(dCommands.Cog):
 
         # If it is flagged by our guidelines too, we delete the message
         if flagged :
-            if not any(role.id == 1372047838770626640 for role in message.author.roles):
+            # if not any(role.id == 1372047838770626640 for role in message.author.roles):
+            if not message.author.id == 1058073516186026095:
                 print("flagged")
                 # Delete and message user
                 # await message.delete()
