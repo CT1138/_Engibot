@@ -1,12 +1,9 @@
 import discord
 from util import utils_math as uMath
 from util import utils_json as jReader
-from util import utils_time as uTime
-from util import Response
-import datetime
-import re
+from actions import Response
 
-CHANNELS = jReader.read("./data/channels.json")
+CHANNELS = jReader.read("./__data/channels.json")
 
 async def reply_random(message, abForce=False):
     RESPONSE, URL = Response.getRandom("random")
@@ -48,7 +45,7 @@ async def reply_bro(message: discord.Message, abForce=False, aiChance=70):
         "until i"
     ]
 
-    PATH = "./data/assets/bro.jpg"
+    PATH = "./__data/assets/bro.jpg"
     with open(PATH, 'rb') as f:
         IMG = discord.File(f)
 

@@ -1,12 +1,12 @@
-import discord
-from discord import utils as dUtils
 from discord.ext import commands as dCommands
 import util.utils_json as ujReader
-import util.Response as uResponse
+import actions.Response as uResponse
 import util.utils_string as uString
 import actions
+import aimoderator
 
-PATH_RESPONSES = "./data/responses.json"
+PATH_RESPONSES = "./__data/responses.json"
+moderator = aimoderator.AIModerator()
 
 class hFun(dCommands.Cog):
     def __init__(self, bot):
@@ -17,26 +17,7 @@ class hFun(dCommands.Cog):
         await ctx.reply("i know what kind of man you are")
         await ctx.defer()
 
-    @dCommands.command("tf2", with_app_command=True)
-    async def tf2(self, ctx, arg1):
-        if(arg1 == "") : 
-            await ctx.reply("Please provide a class!")
-            return
-        try:
-            CHARACTER = actions.dTF2.TF2Character(arg1)
-            EMBED = discord.Embed(
-                title=CHARACTER.name,
-                description=CHARACTER.description,
-                color=0xFF5733
-            )
-            EMBED.set_image(url=CHARACTER.thumbnail)
-            await ctx.reply(embed=EMBED)
-        except ValueError as e:
-            print(e)
-            await ctx.reply("You did not provide a valid class!")
-        await ctx.defer()
-
-    @dCommands.command("explode", with_app_command=True)
+    @fun.command("explode", with_app_command=True)
     async def explode(self, ctx):
         RESPONSE, URL = uResponse.getRandom("explode")
         await ctx.reply(RESPONSE)
@@ -60,20 +41,29 @@ class hFun(dCommands.Cog):
             RESPONSE, URL = uResponse.getLast("random")
         else:
             RESPONSE, URL = uResponse.get("random", aiIndex=index)
-        await ctx.send(RESPONSE)
-        await ctx.send(URL)
+
+        await ctx.message.channel.send(RESPONSE)
+        await ctx.message.channel.send(URL)
         await ctx.defer()
         
 
-    @dCommands.command("add", with_app_command=True)
-    async def add (self, ctx, type:str, content:str):
-        print("Called add")
-        STRING = uString.shorten_string(content, 2000)
-        RESPONSE, URL = uResponse.getRandom("finishAdd")
 
-        match type:
+    @fun.command("add", with_app_command=True)
+    async def add (self, ctx, object: str, element: str):
+        print("Called add")
+        STRING = uString.shorten_string(element, 2000)
+
+        RESPONSE, URL = uResponse.getRandom("finishAdd")
+        flagged, aiflagged, response = moderator.scanText(STRING)
+
+        if flagged :
+            await ctx.message.delete()
+            await ctx.send(f"{ctx.author.mention} Your message has been flagged for poor content and will not be added to my response database.")
+            return
+
+        match object:
             case "gif":
-                if not content :
+                if not element :
                     await ctx.reply("Please provide a gif to add") 
                     return
                 try: 
@@ -86,7 +76,7 @@ class hFun(dCommands.Cog):
                 except Exception as e:
                     await ctx.reply(e)
             case "response":
-                if not content :
+                if not element :
                     await ctx.reply("Please provide a response to add")
                     return
                 try:

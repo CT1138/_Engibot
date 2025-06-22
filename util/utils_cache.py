@@ -1,7 +1,7 @@
 import json
 import os
 
-STAR_SAVEPATH = "./data/starboard_cache.json"
+STAR_SAVEPATH = "./__data/starboard_cache.json"
 
 def starboard_save():
     with open(STAR_SAVEPATH, "w") as f:

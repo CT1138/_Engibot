@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands as dCommands
 import util.utils_json as ujReader
-import util.Response as uResponse
+import actions.Response as uResponse
 import util.utils_discord as uDiscord
 
 # VARIABLES
-PATH_IGNORES = "./data/ignores.json"
+PATH_IGNORES = "./__data/ignores.json"
 
 class hUtil(dCommands.Cog):
     def __init__(self, bot):

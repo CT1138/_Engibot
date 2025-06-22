@@ -1,11 +1,6 @@
-data/tokens.json
-data/starboard_cache.json
-__pycache__/
-data/tokens.json
-data/tokens.json
+__data/tokens.json
+__data/starboard_cache.json
+*__pycache__/
+*.pyc
 *.png
 *.gif
-*.pyc
-*.pyc
-*.pyc
-actions/__pycache__/silly.cpython-310.pyc
