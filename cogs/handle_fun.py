@@ -1,11 +1,12 @@
-import discord
 from discord.ext import commands as dCommands
 import util.utils_json as ujReader
 import actions.Response as uResponse
 import util.utils_string as uString
 import actions
+import aimoderator
 
 PATH_RESPONSES = "./__data/responses.json"
+moderator = aimoderator.AIModerator()
 
 class hFun(dCommands.Cog):
     def __init__(self, bot):
@@ -57,6 +58,12 @@ class hFun(dCommands.Cog):
         print("Called add")
         STRING = uString.shorten_string(element, 2000)
         RESPONSE, URL = uResponse.getRandom("finishAdd")
+        flagged, aiflagged, response = moderator.scanText(STRING)
+
+        if flagged :
+            await ctx.message.delete()
+            await ctx.send(f"{ctx.author.mention} Your message has been flagged for poor content and will not be added to my response database.")
+            return
 
         match object:
             case "gif":

@@ -34,7 +34,7 @@ db = mariadb.MariaDBInterface(
 @bot.event
 async def on_ready():
     # Connect to database, print result
-    print( db.connect() )
+    # print( db.connect() )
 
     # Load Cogs
     for filename in os.listdir("./cogs"):
