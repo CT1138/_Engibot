@@ -85,7 +85,6 @@ class hListener(dCommands.Cog):
                 await message.add_reaction("<:happi:1355706814083371199>")
                 await message.add_reaction(STARBOARD_EMOJI)
 
-
         await uReply.reply_random(message)
         await uReply.reply_bro(message)
 
