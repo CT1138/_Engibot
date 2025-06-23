@@ -1,54 +1,41 @@
 import os
 import discord
 from discord.ext import commands as dCommands
-import util.utils_json as ujReader
-import util.utils_cache as uCache
+from interface.interface_json import IF_JSON
 import actions.Starboard as uStarboard
-import mariadb
 
 # Data
-uCache.starboard_load()
-CONFIG = ujReader.read("./__data/config.json")
-TOKENS = ujReader.read("./__data/tokens.json")
-DBLOGIN = TOKENS["mariadb"]
+CONFIG = IF_JSON("./__data/config.json")
+TOKENS = IF_JSON("./__data/tokens.json")
 
 # VARIABLES
-PREFIX = CONFIG["prefix"]
-STAFF = CONFIG["roles"]["staff"]
-STATUS = CONFIG["status"]
+PREFIX = "-"
+STATUS = CONFIG.json["status"]
 
 # Setup Bot
 MYINTENTS = discord.Intents.all()
 MYINTENTS.reactions = True
 bot = dCommands.Bot(command_prefix=PREFIX, intents=MYINTENTS)
 
-# Define Database
-db = mariadb.MariaDBInterface(
-    host=DBLOGIN["host"],
-    user= DBLOGIN["user"],
-    password=DBLOGIN["password"],
-    database=DBLOGIN["database"]
-)
+uStarboard.starboard_load()
 
 # EVENTS
 @bot.event
 async def on_ready():
-    # Connect to database, print result
-    # print( db.connect() )
-
     # Load Cogs
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
+            print(f"[COG] Loading cog {filename}")
             await bot.load_extension(f"cogs.{filename[:-3]}")
     try:
         synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} application commands.")
+        print(f"[COG] Synced {len(synced)} application commands.")
     except Exception as e:
-        print(f"Sync failed: {e}")
-    
+        print(f"[COG] Sync failed: {e}")
+
     # After general bot setup
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    print('------')
+    print(f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})')
+    
     # TODO: Add cycling status option (eg chance every 30 minutes or hour)
     await bot.change_presence(
         status=discord.Status.idle,
@@ -57,4 +44,4 @@ async def on_ready():
     await uStarboard._starboard_cache(bot)
 
 # RUN
-bot.run(TOKENS["botToken"])
+bot.run(TOKENS.json["botToken"])

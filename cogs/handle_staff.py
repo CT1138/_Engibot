@@ -1,17 +1,22 @@
 import os
 import sys
 import discord
+import datetime
+import aimoderator
+from interface.interface_guild import IF_Guild, ChannelType
 from discord import utils as dUtils, File, app_commands
 from discord.ext import commands as dCommands
-import util.utils_json as ujReader
-import actions.Response as uResponse
+from interface.interface_json import IF_JSON
+import interface.interface_response as uResponse
 
-CONFIG = ujReader.read("./__data/config.json")
+# Read Configs
+CONFIG = IF_JSON("./__data/config.json")
+IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
 # VARIABLES
-STARBOARD_EMOJI = CONFIG["emojis"]["starboard"]
-PREFIX = CONFIG["prefix"]
-STAFF = CONFIG["roles"]["staff"]
-STATUS = CONFIG["status"]
+STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
+STATUS = CONFIG.json["status"]
+
+moderator = aimoderator.AIModerator()
 
 class hStaff(dCommands.Cog):
     def __init__(self, bot):
@@ -25,12 +30,62 @@ class hStaff(dCommands.Cog):
             if f.endswith(".json") and f != "tokens.json"
         ]
 
+    # Content Filter
+    @dCommands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        GUILD = IF_Guild(message.guild)
+        CHANNELTYPE = GUILD.getChannelType(message.channel.id)
+        if CHANNELTYPE == ChannelType.STAFF : return
+        if CHANNELTYPE == ChannelType.IGNORE : return
+        if message.author.bot : return
+
+        # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
+        flagged, aiflagged, response = moderator.scanText(message.content)
+        if aiflagged:
+            STAFFLOG = GUILD.getChannelByType(ChannelType.STAFFLOG)
+            embed = discord.Embed(
+                title="Flagged Message",
+                description=
+                f"""Posted in {message.channel.mention}
+                Content: {message.content}"""
+                ,
+                colour=0xf50031,
+                timestamp=datetime.datetime.now(),
+                url=message.jump_url
+            )
+            embed.set_author(name=message.author.name, icon_url=message.author.avatar.url)
+            embed.set_footer(text="Moderation")
+
+            result = response.results[0]
+
+            categories = result.categories.model_dump() 
+            scores = result.category_scores.model_dump()
+
+            for cat, f in categories.items():
+                if not f : continue
+                score = scores.get(cat, 0)
+                embed.add_field(
+                    name=f"{cat}",
+                    value=f"Score: {score:.3f}",
+                    inline=True
+                )
+
+            await STAFFLOG.send(embed=embed)
+
+        # If it is flagged by our guidelines too, we delete the message
+        if flagged :
+            print("flagged")
+            # Delete and message user
+            # await message.delete()
+            await message.channel.send(f"{message.author.mention} your message has been flagged by my moderation engine, if you believe this was wrong, ping a <@&1372047838770626640> member and they may review this incident.")
+            return
+
     # Pure slash command: kill
     @app_commands.command(name="kill", description="Shut down the bot")
     async def kill(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
-        role = dUtils.get(interaction.guild.roles, id=STAFF)
-        if role in interaction.user.roles:
+        GUILD = IF_Guild(interaction.guild)
+        if GUILD.isStaff(interaction.user.id):
             await interaction.response.send_message("Shutting down...", ephemeral=True)
             await self.bot.close()
         else:
@@ -40,52 +95,13 @@ class hStaff(dCommands.Cog):
     @app_commands.command(name="restart", description="Restart the bot")
     async def restart(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
-        role = dUtils.get(interaction.guild.roles, id=STAFF)
-        if role in interaction.user.roles:
+        GUILD = IF_Guild(interaction.guild)
+        if GUILD.isStaff(interaction.user.id):
             await interaction.response.send_message("Restarting...", ephemeral=True)
             await self.bot.close()
             os.execv(sys.executable, [sys.executable] + sys.argv)
         else:
             await interaction.response.send_message(RESPONSE, ephemeral=True)
-
-    # Pure slash command: check_role
-    @app_commands.command(name="check_role", description="Check if a member has a given role ID")
-    @app_commands.describe(member="The member to check", role_id="The ID of the role to check")
-    async def check_role(self, interaction: discord.Interaction, member: discord.Member, role_id: int):
-        role = dUtils.get(interaction.guild.roles, id=role_id)
-        if role is None:
-            await interaction.response.send_message(f"Role with ID {role_id} not found.", ephemeral=True)
-            return
-        if role in member.roles:
-            await interaction.response.send_message(f"{member.display_name} has the role: {role.name}", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"{member.display_name} does not have the role: {role.name}", ephemeral=True)
-
-    # Pure slash command: dump
-    @app_commands.command(name="dump", description="Dump a JSON file to HTML")
-    @app_commands.describe(choice="The JSON file to dump (no extension)")
-    async def dump(self, interaction: discord.Interaction, choice: str):
-        await interaction.response.defer(ephemeral=False)
-        json_path = f"./__data/{choice}.json"
-        try:
-            dump_path = ujReader.dumpHTML(json_path)  # returns .html file path
-            await interaction.followup.send(
-                content=f"Here's the HTML dump for `{choice}.json`:",
-                file=File(dump_path)
-            )
-        except FileNotFoundError:
-            await interaction.followup.send(f"❌ File `{choice}.json` not found.")
-        except Exception as e:
-            await interaction.followup.send(f"❌ An error occurred: {e}")
-
-    # Autocomplete handler for dump
-    @dump.autocomplete("choice")
-    async def dump_autocomplete(self, interaction: discord.Interaction, current: str):
-        return [
-            app_commands.Choice(name=name, value=name)
-            for name in self.get_json_choices()
-            if current.lower() in name.lower()
-        ]
 
 async def setup(bot):
     await bot.add_cog(hStaff(bot))

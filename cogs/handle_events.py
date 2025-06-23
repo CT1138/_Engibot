@@ -1,35 +1,42 @@
 import discord
 from discord.ext import commands as dCommands
-import util.utils_json as ujReader
-import actions.Response as uResponse
+from interface.interface_guild import IF_Guild, ChannelType
+from interface.interface_json import IF_JSON
+import interface.interface_response as uResponse
 import util.utils_math as uMath
+from interface.interface_guild import IF_Guild
 
-CONFIG = ujReader.read("./__data/config.json")
+CONFIG = IF_JSON("./__data/config.json")
 # VARIABLES
-STARBOARD_EMOJI = CONFIG["emojis"]["starboard"]
-PREFIX = CONFIG["prefix"]
-STAFF = CONFIG["roles"]["staff"]
-STATUS = CONFIG["status"]
+STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
+STATUS = CONFIG.json["status"]
 
 class hEvent(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def on_typing(channel, user: discord.Member, when):
+    async def on_typing(channel: discord.TextChannel, user: discord.Member, when):
         if(user.bot) : return
-        IGNORES = ujReader.read("./__data/ignores.json")["ignores"]
+        GUILD = IF_Guild(channel.guild)
+        CHANNELTYPE = GUILD.getChannelType(channel.id)
+        if not CHANNELTYPE == ChannelType.SILLY : return
+
+        IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
         if user.id in IGNORES: return
 
         RESPONSE, URL = uResponse.getRandom("onSpeaking", user.display_name)
-        if uMath.roll(95, "On Speaking"):
+        if uMath.roll(GUILD.getChance("OnSpeaking"), "On Speaking"):
             await channel.send(RESPONSE)
 
     async def on_message_delete(message):
         # Dont react to bots deleting messages
         if message.author.bot : return
         if not message.guild : return
+        GUILD = IF_Guild(message.guild)
+        CHANNELTYPE = GUILD.getChannelType(message.channel.id)
+        if not CHANNELTYPE == ChannelType.SILLY : return
         # 20% chance to respond if a message is deleted
-        if(uMath.roll(80)):
+        if(uMath.roll(GUILD.getChance("OnDelete"))):
             RESPONSE, URL = uResponse.getRandom("onDelete")
             CONTENT = ""
             if(uMath.roll(50)):

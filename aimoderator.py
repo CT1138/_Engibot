@@ -1,9 +1,9 @@
 from openai import OpenAI
-import util.utils_json as ujReader
+from interface.interface_json import IF_JSON
 import json
 import os
 
-TOKENS = ujReader.read("./__data/tokens.json")
+TOKENS = IF_JSON("./__data/tokens.json").json
 client = OpenAI(api_key=TOKENS["openai"])
 
 modModel = "omni-moderation-latest"

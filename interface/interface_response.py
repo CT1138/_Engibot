@@ -1,13 +1,13 @@
-from util import utils_json as jReader 
+from interface.interface_json import IF_JSON
 from util import utils_string as uString
 import random
 
 # TODO: REPLACE JSON USAGE WITH A MYSQL SERVER
 
 def getArray(asTerm="!placeholder", asParam="!placeholder"):
-    RESPONSES = jReader.read("./__data/responses.json")[asTerm]
-    STRINGS = [s.replace("{x}", asParam) for s in RESPONSES["_responses"]]
-    URLS = RESPONSES["_urls"]
+    RESPONSES = IF_JSON("./__data/responses.json")
+    STRINGS = [s.replace("{x}", asParam) for s in RESPONSES[asTerm]["_responses"]]
+    URLS = RESPONSES[asTerm]["_urls"]
 
     # Shorten the responses in case
     MAX_LENGTH = 2000
@@ -51,7 +51,8 @@ def add(asTerm: str, abResponse:bool, asPhrase: str):
             KEY = "_responses"
         else:
             KEY = "_urls"
-        jReader.addList(
+        RESPONSES = IF_JSON("./__data/responses.json")
+        RESPONSES.addList(
             file_path="./__data/responses.json",
             key_path=[asTerm, KEY],
             item=asPhrase
