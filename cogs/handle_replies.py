@@ -19,7 +19,7 @@ class hReplies(dCommands.Cog):
     async def on_message(self, message: discord.Message):
         GUILD = IF_Guild(message.channel.guild)
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
-        IGNORES = IF_JSON("./__data/ignores.json")["ignores"]
+        IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
 
         # Do not do anything if :
         if message.author.id in IGNORES: return # author is in ignore list
