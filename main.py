@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
-import actions.Starboard as uStarboard
+import starboard as uStarboard
 
 # Data
 CONFIG = IF_JSON("./__data/config.json")

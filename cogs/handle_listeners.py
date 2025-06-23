@@ -1,11 +1,11 @@
 import discord
+import re
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
 import interface.interface_response as uResponse
 from interface.interface_json import IF_JSON
+from aimoderator import AIChatbot
 import util.utils_cache as uCache
-import actions
-
 
 CONFIG = IF_JSON("./__data/config.json")
 # VARIABLES
@@ -32,6 +32,18 @@ class hListener(dCommands.Cog):
                 await message.add_reaction("<:happi:1355706814083371199>")
                 await message.add_reaction(STARBOARD_EMOJI)
 
+        url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
+        if url_pattern.search(message.content) and GUILD.guildConfig["scrapegifs"]:
+            link = re.findall(url_pattern, message.content)[0]
+            uResponse.add("random", False, link)
+            print(f"[RESPONSE] scalped and found gif {link}")
+
+        if GUILD.guildConfig["chatcompletions"]:
+            Chatterbox = AIChatbot(f"You are an observer of a discord conversation in a server called {GUILD.guildName}")
+            Context = await Chatterbox.channelToGPT(message.channel)
+            Completion = Chatterbox.chatCompletion(Context)
+            print("[AI] " + Completion)
+
     @dCommands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
         # Return if the user is a bot or if there is no image or the image is not in our art channel
@@ -54,8 +66,8 @@ class hListener(dCommands.Cog):
         for milestone in sorted(MILESTONES):
             RESPONSE, URL = uResponse.getRandom("starboardMilestone")
             if COUNT >= milestone > PREV_MILESTONE:
-                actions.uCache.starred_messages[MESSAGE_ID] = milestone
-                actions.uCache.starboard_save()
+                uCache.starred_messages[MESSAGE_ID] = milestone
+                uCache.starboard_save()
         
                 # Build the embed to send
                 AUTHOR = MESSAGE.author.name

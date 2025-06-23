@@ -1,17 +1,17 @@
 from openai import OpenAI
 from interface.interface_json import IF_JSON
-import json
-import os
+from interface.interface_guild import IF_Guild
+import discord
 
 TOKENS = IF_JSON("./__data/tokens.json").json
 client = OpenAI(api_key=TOKENS["openai"])
 
 modModel = "omni-moderation-latest"
-sensitive_categories = ["hate", "harassment", "sexual", "self-harm"]
 
 class AIModerator:
-    def __init__(self):
-        self.categories_to_flag = sensitive_categories
+    def __init__(self, guild: discord.Guild):
+        self.GUILD = IF_Guild(guild)
+        self.categories_to_flag = self.GUILD.guildConfig["sensitive-content"]
         return
     
     def shouldFlag(self, response):
@@ -46,35 +46,39 @@ class AIModerator:
         flagged = self.shouldFlag(response)
         return flagged, response
 
-def scan_all_responses(moderator):
-    input_path = os.path.join(".", "__data", "responses.json")
-    output_path = "responses_filtered.txt"
+# It's very unlikely I will implement this as a key feature, but for the sake of curiosity and testing purposes....
+class AIChatbot:
+    def __init__(self, systemPrompt):
+        self.SYSTEMPROMPT = {"role": "system", "content": systemPrompt}
+        pass
 
-    with open(input_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    def chatCompletion(self, data: dict):
+        completion = client.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=data
+        )
+        return completion.choices[0].message.content
 
-    responses = data.get("random", {}).get("_responses", [])
-    urls = data.get("random", {}).get("_urls", [])
+    async def channelToGPT(self, channel: discord.TextChannel, limit: int = 20) -> list[dict]:
+        messages = []
+        
+        async for msg in channel.history(limit=limit, oldest_first=True):
+            # Ignore system messages or webhooks
+            if msg.webhook_id or msg.type != discord.MessageType.default:
+                continue
 
-    with open(output_path, "w", encoding="utf-8") as out_file:
-        out_file.write("Source\tFlagged\tFlaggedCategories\tContent\n")
+            # Skip bot messages unless you want to preserve them
+            if msg.author.bot:
+                continue
 
-        # Scan _responses
-        for i, text in enumerate(responses):
-            print("Scanning: " + text)
-            flagged, response = moderator.scanText(text)
-            result = response.results[0]
-            categories = dict(result.categories)
-            triggered = [cat for cat, val in categories.items() if val]
-            out_file.write(f"_responses\t{flagged}\t{','.join(triggered)}\t{text}\n")
+            role = "user"
+            content = f"{msg.author.display_name}: {msg.content.strip()}"
 
-        # Scan _urls
-        for i, url in enumerate(urls):
-            print("Scanning: " + url)
-            flagged, response = moderator.scanText(url)
-            result = response.results[0]
-            categories = dict(result.categories)
-            triggered = [cat for cat, val in categories.items() if val]
-            out_file.write(f"_urls\t{flagged}\t{','.join(triggered)}\t{url}\n")
+            # Only add if the message has content
+            if content.strip():
+                messages.append({"role": role, "content": content})
 
-    print(f"Scan results written to {output_path}")
+        # Optional: Add a system message at the top
+        messages.insert(0, self.SYSTEMPROMPT)
+
+        return messages

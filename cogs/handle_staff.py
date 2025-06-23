@@ -16,8 +16,6 @@ IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
 STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
 STATUS = CONFIG.json["status"]
 
-moderator = aimoderator.AIModerator()
-
 class hStaff(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -40,6 +38,7 @@ class hStaff(dCommands.Cog):
         if message.author.bot : return
 
         # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
+        moderator = aimoderator.AIModerator(message.guild)
         flagged, aiflagged, response = moderator.scanText(message.content)
         if aiflagged:
             STAFFLOG = GUILD.getChannelByType(ChannelType.STAFFLOG)
