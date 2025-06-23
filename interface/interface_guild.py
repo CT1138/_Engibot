@@ -121,7 +121,7 @@ class IF_Guild:
             return []
         
         CHANNELID = channel_config.get(config_key, [])
-        return self.guild.get_channel(CHANNELID[index])
+        return self.guild.get_channel(CHANNELID[index - 1])
     
     def getChannelsOfType(self, type: ChannelType) -> list[discord.abc.GuildChannel]:
         channel_config = self.guildConfig.get("channel", {})

@@ -4,6 +4,9 @@
     "command-prefix": "!",
     "embed-color": "FF5733",
     "moderation": true,
+    "scrapegifs": true,
+    "chatcompletions": false,
+    "sensitive-content": ["hate", "harassment", "sexual", "self-harm"],
     "chances": {
         "OnSpeaking": 95,
         "OnDelete": 80,

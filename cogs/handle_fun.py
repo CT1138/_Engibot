@@ -1,3 +1,4 @@
+from typing import List
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
@@ -6,7 +7,6 @@ import util.utils_string as uString
 import aimoderator
 
 PATH_RESPONSES = "./__data/responses.json"
-moderator = aimoderator.AIModerator()
 
 class hFun(dCommands.Cog):
     def __init__(self, bot):
@@ -50,10 +50,11 @@ class hFun(dCommands.Cog):
         await ctx.defer()
 
     @fun.command("add", with_app_command=True, description="Add prompts or gifs to my database")
-    async def add (self, ctx, key: str, value: str):
+    async def add (self, ctx: dCommands.context, key: str, value: str):
         RESPONSES = IF_JSON(path=PATH_RESPONSES)
         STRING = uString.shorten_string(value, 2000)
         RESPONSE, URL = uResponse.getRandom("finishAdd")
+        moderator = aimoderator.AIModerator(ctx.guild)
         flagged, aiflagged, response = moderator.scanText(STRING)
         if flagged :
             await ctx.message.delete()
