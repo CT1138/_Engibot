@@ -1,0 +1,34 @@
+{
+    "name": "template",
+    "id": 1,
+    "command-prefix": "!",
+    "embed-color": "FF5733",
+    "moderation": true,
+    "chances": {
+        "OnSpeaking": 95,
+        "OnDelete": 80,
+        "BroWent": 10,
+        "Response": 95
+    },
+    "channel": {
+        "whitelist": true,
+        "blacklist": false,
+        "starboard": [
+        ],
+        "art": [
+        ],
+        "silly": [
+        ],
+        "staff-log": [
+        ],
+        "ignore": [
+        ]
+    },
+    "role": {
+        "staff": 1,
+        "owner": 0
+    },
+    "member": {
+        "thoustCreatoreth": 752989978535002134
+    }
+}
