@@ -20,7 +20,7 @@ class hListener(dCommands.Cog):
     async def on_message(self, message: discord.Message):
         GUILD = IF_Guild(message.channel.guild)
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
-        IGNORES = IF_JSON("./__data/ignores.json")["ignores"]
+        IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
 
         # Do not do anything if :
         if message.author.id in IGNORES: return # author is in ignore list
@@ -38,7 +38,7 @@ class hListener(dCommands.Cog):
         CHANNELS = IF_JSON("./__data/channels.json")
         if(user.bot) : return
         if not reaction.message.attachments : return
-        if not reaction.message.channel.id in CHANNELS["art"] : return
+        if not reaction.message.channel.id in CHANNELS.json["art"] : return
 
         # Variables
         MESSAGE = reaction.message
@@ -71,7 +71,7 @@ class hListener(dCommands.Cog):
                 embed.set_image(url= MESSAGE.attachments[0].url)
 
                 # Send the art in every starboard channel
-                for cID in CHANNELS["starboard"]:
+                for cID in CHANNELS.json["starboard"]:
                     c = self.bot.get_channel(cID)
                     if c.guild != CHANNEL.guild : continue
                     await c.send(embed=embed, content=f"{STARBOARD_EMOJI} {COUNT} | <#{CHANNEL_ID}>")

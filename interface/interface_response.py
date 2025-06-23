@@ -5,7 +5,7 @@ import random
 # TODO: REPLACE JSON USAGE WITH A MYSQL SERVER
 
 def getArray(asTerm="!placeholder", asParam="!placeholder"):
-    RESPONSES = IF_JSON("./__data/responses.json")
+    RESPONSES = IF_JSON("./__data/responses.json").json
     STRINGS = [s.replace("{x}", asParam) for s in RESPONSES[asTerm]["_responses"]]
     URLS = RESPONSES[asTerm]["_urls"]
 
