@@ -11,8 +11,18 @@ modModel = "omni-moderation-latest"
 class AIModerator:
     def __init__(self, guild: discord.Guild):
         self.GUILD = IF_Guild(guild)
-        self.categories_to_flag = self.GUILD.guildConfig["sensitive-content"]
+        self.categories_to_flag = []
         return
+    
+    async def initialize(self):
+        # Load the categories to flag from the guild configuration
+        await self.GUILD.initialize()
+        if self.GUILD.Config["sensitive-content"]:
+            self.categories_to_flag = self.GUILD.Config["sensitive-content"]
+        else:
+            # Default categories if none are set
+            self.categories_to_flag = ["hate", "harassment", "sexual", "self-harm"]
+        print(f"[AI Mod] Categories to flag: {self.categories_to_flag}")
     
     def shouldFlag(self, response):
         result = response.results[0]

@@ -18,15 +18,13 @@ class hReplies(dCommands.Cog):
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
         GUILD = IF_Guild(message.channel.guild)
+        await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
-        IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
-
+        
         # Do not do anything if :
-        if message.author.id in IGNORES: return # author is in ignore list
         if message.author.bot : return # author is a bot (icky who would want to be a bot?)
         if not CHANNELTYPE == ChannelType.SILLY : return
 
-        GUILD = IF_Guild(message.guild)
         RESPONSE, URL = IF_RESPONSE.getRandom("random")
         CHANCE = GUILD.getChance("Response")
 

@@ -11,7 +11,6 @@ import interface.interface_response as uResponse
 
 # Read Configs
 CONFIG = IF_JSON("./__data/config.json")
-IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
 # VARIABLES
 STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
 STATUS = CONFIG.json["status"]
@@ -32,6 +31,7 @@ class hStaff(dCommands.Cog):
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
         GUILD = IF_Guild(message.guild)
+        await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
         if CHANNELTYPE == ChannelType.STAFF : return
         if CHANNELTYPE == ChannelType.IGNORE : return
@@ -39,6 +39,8 @@ class hStaff(dCommands.Cog):
 
         # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
         moderator = aimoderator.AIModerator(message.guild)
+        await moderator.initialize()
+        await moderator.GUILD.initialize()
         flagged, aiflagged, response = moderator.scanText(message.content)
         if aiflagged:
             STAFFLOG = GUILD.getChannelByType(ChannelType.STAFFLOG)
@@ -84,6 +86,7 @@ class hStaff(dCommands.Cog):
     async def kill(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
+        await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
             await interaction.response.send_message("Shutting down...", ephemeral=True)
             await self.bot.close()
@@ -95,6 +98,7 @@ class hStaff(dCommands.Cog):
     async def restart(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
+        await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
             await interaction.response.send_message("Restarting...", ephemeral=True)
             await self.bot.close()

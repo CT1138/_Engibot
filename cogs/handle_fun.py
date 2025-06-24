@@ -55,6 +55,7 @@ class hFun(dCommands.Cog):
         STRING = uString.shorten_string(value, 2000)
         RESPONSE, URL = uResponse.getRandom("finishAdd")
         moderator = aimoderator.AIModerator(ctx.guild)
+        await moderator.initialize()
         flagged, aiflagged, response = moderator.scanText(STRING)
         if flagged :
             await ctx.message.delete()
