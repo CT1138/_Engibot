@@ -68,7 +68,8 @@ class hFun(dCommands.Cog):
                 try: 
                     await self.response.add(
                         key="random",
-                        phrase=STRING
+                        phrase=STRING,
+                        gif=True
                         )
                     await ctx.reply(RESPONSE)
                 except Exception as e:
