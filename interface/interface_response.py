@@ -1,59 +1,56 @@
-from interface.interface_json import IF_JSON
-from util import utils_string as uString
 import random
+from interface.interface_database import IF_Database, SQLCommands
+from util import utils_string as uString
 
-# TODO: REPLACE JSON USAGE WITH A MYSQL SERVER
 
-def getArray(asTerm="!placeholder", asParam="!placeholder"):
-    RESPONSES = IF_JSON("./__data/responses.json").json
-    STRINGS = [s.replace("{x}", asParam) for s in RESPONSES[asTerm]["_responses"]]
-    URLS = RESPONSES[asTerm]["_urls"]
+class IF_Response:
+    def __init__(self):
+        self.db = IF_Database()
 
-    # Shorten the responses in case
-    MAX_LENGTH = 2000
-    STRINGS = uString.shorten_string(STRINGS, MAX_LENGTH)
-    URLS = uString.shorten_string(URLS, MAX_LENGTH)
+    async def _get_strings_and_urls(self, key: str, param: str):
+        await self.db.connect()
+        result = self.db.fetch(SQLCommands.GET_RESPONSES.value, (key,), all=True)
 
-    return [STRINGS, URLS]
+        strings = []
+        urls = []
 
-def getRandom(asTerm="!placeholder", asParam="!placeholder"):
-    STRINGS, URLS = getArray(asTerm, asParam)
+        for row in result:
+            content = row["content"].replace("{x}", param)
+            if content.startswith("http"):
+                urls.append(content)
+            else:
+                strings.append(content)
 
-    INDEX_S = -1
-    INDEX_U = -1
-    STRING = ""
-    URL = ""
+        MAX_LENGTH = 2000
+        strings = uString.shorten_string(strings, MAX_LENGTH)
+        urls = uString.shorten_string(urls, MAX_LENGTH)
 
-    if(len(STRINGS) > 0) : 
-        INDEX_S = random.randrange(len(STRINGS))
-        STRING = STRINGS[INDEX_S]
-    if(len(URLS) > 0) : 
-        INDEX_U = random.randrange(len(URLS))
-        URL = URLS[INDEX_U]
+        return strings, urls
 
-    return [STRING, URL]
+    async def get_array(self, key="!placeholder", param="!placeholder"):
+        return await self._get_strings_and_urls(key, param)
 
-def getLast(asTerm="!placeholder", asParam="!placeholder"):
-    STRINGS, URLS = getArray(asTerm, asParam)
+    async def get_random(self, key="!placeholder", param="!placeholder"):
+        strings, urls = await self._get_strings_and_urls(key, param)
 
-    LAST_S = len(STRINGS) - 1
-    LAST_U = len(URLS) - 1
+        s = random.choice(strings) if strings else ""
+        u = random.choice(urls) if urls else ""
+        return [s, u]
 
-    return [STRINGS[LAST_S], URLS[LAST_U]]
+    async def get_last(self, key="!placeholder", param="!placeholder"):
+        strings, urls = await self._get_strings_and_urls(key, param)
+        return [strings[-1] if strings else "", urls[-1] if urls else ""]
 
-def get(asTerm="!placeholder", asParam="!placeholder", aiIndex=0):
-    STRINGS, URLS = getArray(asTerm, asParam)
-    
-    return [STRINGS[aiIndex], URLS[aiIndex]]
+    async def get(self, key="!placeholder", param="!placeholder", index=0):
+        strings, urls = await self._get_strings_and_urls(key, param)
+        s = strings[index] if index < len(strings) else ""
+        u = urls[index] if index < len(urls) else ""
+        return [s, u]
 
-def add(asTerm: str, abResponse:bool, asPhrase: str):
-        if(abResponse) : 
-            KEY = "_responses"
-        else:
-            KEY = "_urls"
-        RESPONSES = IF_JSON("./__data/responses.json")
-        RESPONSES.addList(
-            file_path="./__data/responses.json",
-            key_path=[asTerm, KEY],
-            item=asPhrase
-        )
+    async def add(self, key: str, is_response: bool, phrase: str):
+        await self.db.connect()
+        value = phrase.strip()
+        if not value:
+            return
+
+        self.db.query(SQLCommands.INSERT_RESPONSE.value, (key, value))

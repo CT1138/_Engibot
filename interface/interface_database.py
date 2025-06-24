@@ -52,8 +52,7 @@ class IF_Database:
         try:
             self.connection = mysql.connector.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
-            msg = "[DB] Connected to MySQL."
-            print(msg)
+            msg = "[DB] Successfully connected to MySQL."
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MySQL: {e}"
@@ -65,7 +64,6 @@ class IF_Database:
             self.cursor.close()
         if self.connection:
             self.connection.close()
-            print("[DB] Disconnected from MySQL.")
 
     def query(self, query, params=None):
         try:

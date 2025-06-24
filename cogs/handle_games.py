@@ -2,24 +2,25 @@ import random
 import discord
 import asyncio
 from discord.ext import commands as dCommands
-import interface.interface_response as uResponse
+from interface.interface_response import IF_Response
 
 class hGames(dCommands.Cog):
     def __init__(self, bot):
+        self.RESPONSE = IF_Response()
         self.bot = bot
 
     @dCommands.hybrid_group(name="games", with_app_command=True, invoke_without_command=True)
     async def games(self, ctx):
         await ctx.defer()
-        RESPONSE, URL = uResponse.getRandom("failedKill")
+        RESPONSE, URL = await self.RESPONSE.getRandom("failedKill")
         await ctx.send(RESPONSE)
 
     @games.command(name="guess", with_app_command=True, invoke_without_command=True)
     @discord.app_commands.describe(guess="Your guess (a number between 1 and 10)", min="Minimum value, defaults to 0", max="Maximum value, defaults to 10")
     async def guess(self, ctx: dCommands.Context, guess: int, min: int = 0, max: int = 10):
         await ctx.defer()
-        RESPONSE, URL = uResponse.getRandom("random")
-        
+        RESPONSE, URL = await self.RESPONSE.getRandom("random")
+
         if min > max:
             await ctx.send("⚠️ You provided a larger minimum value than maximum!")
             return

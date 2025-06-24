@@ -14,6 +14,31 @@ class ChannelType(Enum):
     STAFFLOG = 4,
     IGNORE = 5
 
+TYPEMAPPING = {
+    ChannelType.STARBOARD: "starboard",
+    ChannelType.ART: "art",
+    ChannelType.SILLY: "silly",
+    ChannelType.STAFF: "staff",
+    ChannelType.STAFFLOG: "staff-log",
+    ChannelType.IGNORE: "ignore"
+}
+
+# Template Config
+TEMPLATE = {
+    "name": "template",
+    "id": 1,
+    "command-prefix": "!",
+    "embed-color": "FF5733",
+    "moderation": True,
+    "scrapegifs": True,
+    "chatcompletions": False,
+    "sensitive_content": ["hate", "harassment", "sexual", "self-harm"],
+    "chances": { "OnSpeaking": 95, "OnDelete": 80, "BroWent": 10, "Response": 95 },
+    "channel": { "whitelist": True, "blacklist": False, "starboard": [], "art": [], "silly": [], "staff-log": [], "ignore": []},
+    "role": { "staff": 1, "owner": 0 },
+    "member": { "thoustCreatoreth": 752989978535002134 }
+}
+
 class IF_Guild:
     def __init__(self, guild: discord.Guild):
         # Basic Guild Data
@@ -31,7 +56,7 @@ class IF_Guild:
         self.Config = {}
 
     async def initialize(self):
-        print(f"[GUILD] Loading guild '{self.guildName}' (ID: {self.guildID}) owned by {self.guildOwner.name} (ID: {self.guildOwner.id})")
+        # print(f"[GUILD] Loading guild '{self.guildName}' (ID: {self.guildID}) owned by {self.guildOwner.name} (ID: {self.guildOwner.id})")
 
         # Init DB
         self.db = IF_Database()
@@ -48,40 +73,25 @@ class IF_Guild:
         await self.db.connect()
         result = self.db.fetch(SQLCommands.GET_GUILD_CONFIG.value, (self.guildID,))
 
-        # Template
-        template_config = {
-            "name": "template",
-            "id": 1,
-            "command-prefix": "!",
-            "embed-color": "FF5733",
-            "moderation": True,
-            "scrapegifs": True,
-            "chatcompletions": False,
-            "sensitive-content": ["hate", "harassment", "sexual", "self-harm"],
-            "chances": { "OnSpeaking": 95, "OnDelete": 80, "BroWent": 10, "Response": 95 },
-            "channel": { "whitelist": True, "blacklist": False, "starboard": [], "art": [], "silly": [], "staff-log": [], "ignore": []},
-            "role": { "staff": 1, "owner": 0 },
-            "member": { "thoustCreatoreth": 752989978535002134 }
-        }
         if not result:
             print(f"[GUILD] No DB config found for guild {self.guildID}, inserting template config.")
             insert_query = SQLCommands.INSERT_GUILD_CONFIG.value
             params = (
                 self.guildID,
-                template_config["name"],
-                template_config["command-prefix"],
-                template_config["embed-color"],
-                int(template_config["moderation"]),
-                int(template_config["scrapegifs"]),
-                int(template_config["chatcompletions"]),
-                json.dumps(template_config["sensitive-content"]),
-                json.dumps(template_config["chances"]),
-                json.dumps(template_config["channel"]),
-                json.dumps(template_config["role"]),
-                json.dumps(template_config["member"]),
+                TEMPLATE["name"],
+                TEMPLATE["command-prefix"],
+                TEMPLATE["embed-color"],
+                int(TEMPLATE["moderation"]),
+                int(TEMPLATE["scrapegifs"]),
+                int(TEMPLATE["chatcompletions"]),
+                json.dumps(TEMPLATE["sensitive_content"]),
+                json.dumps(TEMPLATE["chances"]),
+                json.dumps(TEMPLATE["channel"]),
+                json.dumps(TEMPLATE["role"]),
+                json.dumps(TEMPLATE["member"]),
             )
             self.db.query(insert_query, params)
-            self.Config = template_config
+            self.Config = TEMPLATE
         else:
             try:
                 self.Config = {
@@ -92,7 +102,7 @@ class IF_Guild:
                     "moderation": bool(result["moderation"]),
                     "scrapegifs": bool(result["scrapegifs"]),
                     "chatcompletions": bool(result["chatcompletions"]),
-                    "sensitive-content": json.loads(result["sensitive_content"] or "[]"),
+                    "sensitive_content": json.loads(result["sensitive_content"] or "[]"),
                     "chances": json.loads(result["chances"] or "{}"),
                     "channel": json.loads(result["channels"] or "{}"),
                     "role": json.loads(result["roles"] or "{}"),
@@ -100,7 +110,7 @@ class IF_Guild:
                 }
             except Exception as e:
                 print(f"[GUILD] Error loading DB config JSON fields: {e}")
-                self.Config = template_config
+                self.Config = TEMPLATE
 
     async def loadConfig(self) -> dict:
         await self.db.connect()
@@ -117,7 +127,7 @@ class IF_Guild:
                 "moderation": bool(result["moderation"]),
                 "scrapegifs": bool(result["scrapegifs"]),
                 "chatcompletions": bool(result["chatcompletions"]),
-                "sensitive-content": json.loads(result["sensitive_content"] or "[]"),
+                "sensitive_content": json.loads(result["sensitive_content"] or "[]"),
                 "chances": json.loads(result["chances"] or "{}"),
                 "channel": json.loads(result["channels"] or "{}"),
                 "role": json.loads(result["roles"] or "{}"),
@@ -134,17 +144,7 @@ class IF_Guild:
     def getChannelByType(self, type: ChannelType, index = 0) -> discord.abc.GuildChannel:
         channel_config = self.Config.get("channel", {})
 
-        # Map enum to config key
-        type_mapping = {
-            ChannelType.STARBOARD: "starboard",
-            ChannelType.ART: "art",
-            ChannelType.SILLY: "silly",
-            ChannelType.STAFF: "staff",
-            ChannelType.STAFFLOG: "staff-log",
-            ChannelType.IGNORE: "ignore"
-        }
-
-        config_key = type_mapping.get(type)
+        config_key = TYPEMAPPING.get(type)
         if config_key is None:
             return []
         
@@ -156,17 +156,7 @@ class IF_Guild:
     def getChannelsOfType(self, type: ChannelType) -> list[discord.abc.GuildChannel]:
         channel_config = self.Config.get("channel", {})
 
-        # Map enum to config key
-        type_mapping = {
-            ChannelType.STARBOARD: "starboard",
-            ChannelType.ART: "art",
-            ChannelType.SILLY: "silly",
-            ChannelType.STAFF: "staff",
-            ChannelType.STAFFLOG: "staff-log",
-            ChannelType.IGNORE: "ignore"
-        }
-
-        config_key = type_mapping.get(type)
+        config_key = TYPEMAPPING.get(type)
         if config_key is None:
             return []
         
@@ -184,15 +174,7 @@ class IF_Guild:
         return self.guild.get_role(id)
     
     def getChannelType(self, id: int) -> ChannelType:
-        type_mapping = {
-            "starboard": ChannelType.STARBOARD,
-            "art": ChannelType.ART,
-            "silly": ChannelType.SILLY,
-            "staff": ChannelType.STAFF,
-            "staff-log": ChannelType.STAFFLOG,
-            "ignore": ChannelType.IGNORE
-        }
-        for key, enum_type in type_mapping.items():
+        for key, enum_type in TYPEMAPPING.items():
             list = self.Config.get("channel", {}).get(key, [])
             if id in list:
                 return enum_type
