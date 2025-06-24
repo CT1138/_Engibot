@@ -28,7 +28,7 @@ class SQLCommands(Enum):
         ON DUPLICATE KEY UPDATE ignore_flag = VALUES(ignore_flag)
     """
     DELETE_USER_FLAG = "DELETE FROM guild_user_flags WHERE guild_id = %s AND user_id = %s"
-    GET_ALL_IGNORED_USERS = "SELECT user_id FROM guild_user_flags WHERE guild_id = %s AND ignore_flag = 1",
+    GET_ALL_IGNORED_USERS = "SELECT user_id FROM guild_user_flags WHERE guild_id = %s AND ignore_flag = 1"
     INSERT_MESSAGE = """
         INSERT INTO message_log (
             message_id, guild_id, guild_name, channel_id, channel_name,
@@ -56,8 +56,9 @@ class IF_Database:
             self.cursor.execute("SET NAMES utf8mb4;")
             self.cursor.execute("SET CHARACTER SET utf8mb4;")
             self.cursor.execute("SET character_set_connection=utf8mb4;")
-            
+
             msg = "[DB] Successfully connected to MariaDB."
+            print(msg)
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
@@ -107,5 +108,17 @@ class IF_Database:
         rows = self.fetch(SQLCommands.GET_ALL_IGNORED_USERS.value, (guild_id,), all=True)
         return [row["user_id"] for row in rows] if rows else []
 
-    def __del__(self):
-        self.disconnect()
+    def disconnect(self):
+        try:
+            if self.cursor:
+                self.cursor.close()
+                self.cursor = None
+            if self.connection:
+                try:
+                    if self.connection.is_connected():
+                        self.connection.close()
+                except Exception:
+                    pass
+                self.connection = None
+        except Exception:
+            pass
