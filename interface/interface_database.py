@@ -1,9 +1,9 @@
 # Functionally empty for now until I get my raspberry pi setup with mariadb
 # TODO: Write interface
 # TODO: As interface is implemented, write specialized getters and setters for common operations
-import mysql.connector
+import mariadb
 from enum import Enum
-from mysql.connector import Error
+from mariadb import Error
 from interface.interface_json import IF_JSON
 TOKENS = IF_JSON("./__data/tokens.json").json
 
@@ -44,19 +44,21 @@ class IF_Database:
             'host': TOKENS["MySQL"]["host"],
             'user': TOKENS["MySQL"]["user"],
             'password': TOKENS["MySQL"]["password"],
-            'database': TOKENS["MySQL"]["database"]
+            'database': TOKENS["MySQL"]["database"],
+            'charset': 'utf8mb4',
+            'collation': 'utf8mb4_unicode_ci'
         }
         self.connection = None
         self.cursor = None
 
     async def connect(self):
         try:
-            self.connection = mysql.connector.connect(**self.config)
+            self.connection = mariadb.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
-            msg = "[DB] Successfully connected to MySQL."
+            msg = "[DB] Successfully connected to MariaDB."
             return msg
         except Error as e:
-            msg = f"[DB] Error connecting to MySQL: {e}"
+            msg = f"[DB] Error connecting to MariaDB: {e}"
             print(msg)
             return msg
 
