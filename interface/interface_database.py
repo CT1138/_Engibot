@@ -58,11 +58,9 @@ class IF_Database:
             self.cursor.execute("SET character_set_connection=utf8mb4;")
 
             msg = "[DB] Successfully connected to MariaDB."
-            print(msg)
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
-            print(msg)
             return msg
 
     def disconnect(self):
@@ -84,7 +82,7 @@ class IF_Database:
         try:
             self.cursor.execute(query, params)
             self.connection.commit()
-            print("[DB] Query executed successfully.")
+            print(f"[DB] Query: [{query}][{params}] executed successfully.")
         except Error as e:
             print(f"[DB] Error executing query: {e}")
             self.connection.rollback()
@@ -119,4 +117,3 @@ class IF_Database:
 
     def __del__(self):
         self.disconnect()
-        print("[DB] Database connection closed.")
