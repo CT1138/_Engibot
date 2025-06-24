@@ -66,10 +66,19 @@ class IF_Database:
             return msg
 
     def disconnect(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
+        try:
+            if self.cursor:
+                self.cursor.close()
+                self.cursor = None
+            if self.connection:
+                try:
+                    if self.connection.is_connected():
+                        self.connection.close()
+                except Exception:
+                    pass
+                self.connection = None
+        except Exception:
+            pass
 
     def query(self, query, params=None):
         try:
@@ -108,17 +117,6 @@ class IF_Database:
         rows = self.fetch(SQLCommands.GET_ALL_IGNORED_USERS.value, (guild_id,), all=True)
         return [row["user_id"] for row in rows] if rows else []
 
-    def disconnect(self):
-        try:
-            if self.cursor:
-                self.cursor.close()
-                self.cursor = None
-            if self.connection:
-                try:
-                    if self.connection.is_connected():
-                        self.connection.close()
-                except Exception:
-                    pass
-                self.connection = None
-        except Exception:
-            pass
+    def __del__(self):
+        self.disconnect()
+        print("[DB] Database connection closed.")
