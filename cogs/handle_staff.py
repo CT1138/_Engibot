@@ -72,13 +72,8 @@ class hStaff(dCommands.Cog):
                 )
 
             await STAFFLOG.send(embed=embed)
-
-        # If it is flagged by our guidelines too, we delete the message
-        if flagged :
-            # Delete and message user
-            # await message.delete()
-            await message.channel.send(f"{message.author.mention} your message has been flagged by my moderation engine, if you believe this was wrong, ping a <@&1372047838770626640> member and they may review this incident.")
-            return
+            if flagged :
+                await STAFFLOG.send("<@&1372047838770626640>")
 
     # Pure slash command: kill
     @app_commands.command(name="kill", description="Shut down the bot")

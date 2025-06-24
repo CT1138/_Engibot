@@ -28,7 +28,7 @@ class SQLCommands(Enum):
         ON DUPLICATE KEY UPDATE ignore_flag = VALUES(ignore_flag)
     """
     DELETE_USER_FLAG = "DELETE FROM guild_user_flags WHERE guild_id = %s AND user_id = %s"
-    GET_ALL_IGNORED_USERS = "SELECT user_id FROM guild_user_flags WHERE guild_id = %s AND ignore_flag = 1",
+    GET_ALL_IGNORED_USERS = "SELECT user_id FROM guild_user_flags WHERE guild_id = %s AND ignore_flag = 1"
     INSERT_MESSAGE = """
         INSERT INTO message_log (
             message_id, guild_id, guild_name, channel_id, channel_name,
@@ -44,9 +44,7 @@ class IF_Database:
             'host': TOKENS["MySQL"]["host"],
             'user': TOKENS["MySQL"]["user"],
             'password': TOKENS["MySQL"]["password"],
-            'database': TOKENS["MySQL"]["database"],
-            'charset': 'utf8mb4',
-            'collation': 'utf8mb4_unicode_ci'
+            'database': TOKENS["MySQL"]["database"]
         }
         self.connection = None
         self.cursor = None
@@ -55,24 +53,35 @@ class IF_Database:
         try:
             self.connection = mariadb.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
+            self.cursor.execute("SET NAMES utf8mb4;")
+            self.cursor.execute("SET CHARACTER SET utf8mb4;")
+            self.cursor.execute("SET character_set_connection=utf8mb4;")
+
             msg = "[DB] Successfully connected to MariaDB."
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
-            print(msg)
             return msg
 
     def disconnect(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
+        try:
+            if self.cursor:
+                self.cursor.close()
+                self.cursor = None
+            if self.connection:
+                try:
+                    if self.connection.is_connected():
+                        self.connection.close()
+                except Exception:
+                    pass
+                self.connection = None
+        except Exception:
+            pass
 
     def query(self, query, params=None):
         try:
             self.cursor.execute(query, params)
             self.connection.commit()
-            print("[DB] Query executed successfully.")
         except Error as e:
             print(f"[DB] Error executing query: {e}")
             self.connection.rollback()
