@@ -3,10 +3,9 @@ import re
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_database import IF_Database, SQLCommands
-import interface.interface_response as uResponse
+from interface.interface_response import IF_Response
 from interface.interface_json import IF_JSON
 from aimoderator import AIChatbot
-import util.utils_cache as uCache
 
 CONFIG = IF_JSON("./__data/config.json")
 # VARIABLES
@@ -16,6 +15,7 @@ STATUS = CONFIG.json["status"]
 class hListener(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.RESPONSE = IF_Response()
 
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -41,7 +41,7 @@ class hListener(dCommands.Cog):
 
         # Do not do anything if :
         if message.author.bot : return # author is a bot (icky who would want to be a bot?)
-        
+        if message.author.id == self.bot.user.id : return # message is from the bot itself
         # Starboard features
         if message.attachments:
             if CHANNELTYPE == ChannelType.ART:
@@ -51,7 +51,7 @@ class hListener(dCommands.Cog):
         url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
         if url_pattern.search(message.content) and GUILD.Config["scrapegifs"]:
             link = re.findall(url_pattern, message.content)[0]
-            uResponse.add("random", False, link)
+            await self.RESPONSE.add("random", link, False)
             print(f"[RESPONSE] scalped and found gif {link}")
 
         if GUILD.Config["chatcompletions"]:
@@ -61,54 +61,6 @@ class hListener(dCommands.Cog):
             print("[AI] " + Completion)
 
         DB.__del__()
-
-    @dCommands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
-        # Return if the user is a bot or if there is no image or the image is not in our art channel
-        CHANNELS = IF_JSON("./__data/channels.json")
-        if(user.bot) : return
-        if not reaction.message.attachments : return
-        if not reaction.message.channel.id in CHANNELS.json["art"] : return
-
-        # Variables
-        MESSAGE = reaction.message
-        MESSAGE_ID = MESSAGE.id
-        MESSAGE_CONTENT = MESSAGE.content
-        CHANNEL = MESSAGE.channel
-        CHANNEL_ID = CHANNEL.id
-        COUNT = reaction.count
-        MILESTONES = {3, 5, 10, 15, 25, 50, 100}
-        PREV_MILESTONE = uCache.starred_messages.get(str(MESSAGE_ID), 0)
-
-        # Is this new reaction a star?
-        for milestone in sorted(MILESTONES):
-            RESPONSE, URL = uResponse.getRandom("starboardMilestone")
-            if COUNT >= milestone > PREV_MILESTONE:
-                uCache.starred_messages[MESSAGE_ID] = milestone
-                uCache.starboard_save()
-        
-                # Build the embed to send
-                AUTHOR = MESSAGE.author.name
-                TITLE= f"Art by {AUTHOR}"
-                if MESSAGE.content : TITLE = MESSAGE_CONTENT
-                embed = discord.Embed(
-                    title= TITLE,
-                    url= MESSAGE.jump_url,
-                    color= 0x4CE4B1,
-                    timestamp= MESSAGE.created_at
-                )
-                embed.set_author(name= AUTHOR, icon_url= MESSAGE.author.avatar.url)
-                embed.set_image(url= MESSAGE.attachments[0].url)
-
-                # Send the art in every starboard channel
-                for cID in CHANNELS.json["starboard"]:
-                    c = self.bot.get_channel(cID)
-                    if c.guild != CHANNEL.guild : continue
-                    await c.send(embed=embed, content=f"{STARBOARD_EMOJI} {COUNT} | <#{CHANNEL_ID}>")
-
-                # Reply in the art channel
-                await MESSAGE.reply(RESPONSE)
-                break
 
 async def setup(bot):
     await bot.add_cog(hListener(bot))

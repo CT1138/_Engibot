@@ -9,8 +9,9 @@ TOKENS = IF_JSON("./__data/tokens.json").json
 
 class SQLCommands(Enum):
     GET_RESPONSES = "SELECT * FROM responses WHERE `key` = %s"
+    GET_GIFS = "SELECT * FROM urls WHERE `key` = %s"
     INSERT_RESPONSE = "INSERT INTO responses (`key`, content) VALUES (%s, %s)"
-    DELETE_RESPONSE_BY_ID = "DELETE FROM responses WHERE id = %s"
+    INSERT_GIF = "INSERT INTO urls (`key`, content) VALUES (%s, %s)"
     GET_GUILD_CONFIG = "SELECT * FROM guild_config WHERE id = %s"
     INSERT_GUILD_CONFIG = """
         INSERT INTO guild_config (
@@ -52,8 +53,7 @@ class IF_Database:
         try:
             self.connection = mysql.connector.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
-            msg = "[DB] Connected to MySQL."
-            print(msg)
+            msg = "[DB] Successfully connected to MySQL."
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MySQL: {e}"
@@ -65,7 +65,6 @@ class IF_Database:
             self.cursor.close()
         if self.connection:
             self.connection.close()
-            print("[DB] Disconnected from MySQL.")
 
     def query(self, query, params=None):
         try:

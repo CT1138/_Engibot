@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
-import interface.interface_response as IF_RESPONSE
+from interface.interface_response import IF_Response
 from interface.interface_json import IF_JSON
 import util.utils_math as uMath
 
@@ -14,6 +14,7 @@ STATUS = CONFIG.json["status"]
 class hReplies(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.response = IF_Response()
 
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -23,9 +24,11 @@ class hReplies(dCommands.Cog):
         
         # Do not do anything if :
         if message.author.bot : return # author is a bot (icky who would want to be a bot?)
+        if message.author.id == self.bot.user.id : return # message is from the bot itself
+        
         if not CHANNELTYPE == ChannelType.SILLY : return
 
-        RESPONSE, URL = IF_RESPONSE.getRandom("random")
+        RESPONSE, URL = await self.response.getRandom("random")
         CHANCE = GUILD.getChance("Response")
 
         if uMath.roll(CHANCE, "Response"):

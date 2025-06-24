@@ -17,12 +17,11 @@ class AIModerator:
     async def initialize(self):
         # Load the categories to flag from the guild configuration
         await self.GUILD.initialize()
-        if self.GUILD.Config["sensitive-content"]:
-            self.categories_to_flag = self.GUILD.Config["sensitive-content"]
+        if self.GUILD.Config["sensitive_content"]:
+            self.categories_to_flag = self.GUILD.Config["sensitive_content"]
         else:
             # Default categories if none are set
             self.categories_to_flag = ["hate", "harassment", "sexual", "self-harm"]
-        print(f"[AI Mod] Categories to flag: {self.categories_to_flag}")
     
     def shouldFlag(self, response):
         result = response.results[0]
