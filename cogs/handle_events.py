@@ -18,6 +18,7 @@ class hEvent(dCommands.Cog):
     async def on_typing(channel: discord.TextChannel, user: discord.Member, when):
         if(user.bot) : return
         GUILD = IF_Guild(channel.guild)
+        await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(channel.id)
         if not CHANNELTYPE == ChannelType.SILLY : return
 
@@ -33,6 +34,7 @@ class hEvent(dCommands.Cog):
         if message.author.bot : return
         if not message.guild : return
         GUILD = IF_Guild(message.guild)
+        await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
         if not CHANNELTYPE == ChannelType.SILLY : return
         # 20% chance to respond if a message is deleted

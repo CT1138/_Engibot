@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
-import starboard as uStarboard
+from interface.interface_guild import IF_Guild
 
 # Data
 CONFIG = IF_JSON("./__data/config.json")
@@ -16,8 +16,6 @@ STATUS = CONFIG.json["status"]
 MYINTENTS = discord.Intents.all()
 MYINTENTS.reactions = True
 bot = dCommands.Bot(command_prefix=PREFIX, intents=MYINTENTS)
-
-uStarboard.starboard_load()
 
 # EVENTS
 @bot.event
@@ -35,13 +33,16 @@ async def on_ready():
 
     # After general bot setup
     print(f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})')
+
+    for guild in bot.guilds:
+        G = IF_Guild(guild)
+        await G.initialize()
     
     # TODO: Add cycling status option (eg chance every 30 minutes or hour)
     await bot.change_presence(
         status=discord.Status.idle,
         activity=discord.Activity(type=discord.ActivityType.listening, name=STATUS)
     )
-    await uStarboard._starboard_cache(bot)
 
 # RUN
 bot.run(TOKENS.json["botToken"])

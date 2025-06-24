@@ -2,6 +2,7 @@ import discord
 import re
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
+from interface.interface_database import IF_Database, SQLCommands
 import interface.interface_response as uResponse
 from interface.interface_json import IF_JSON
 from aimoderator import AIChatbot
@@ -19,11 +20,26 @@ class hListener(dCommands.Cog):
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
         GUILD = IF_Guild(message.channel.guild)
+        await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
-        IGNORES = IF_JSON("./__data/ignores.json").json["ignores"]
+
+        DB = IF_Database()
+        await DB.connect()
+
+        params = (
+            message.id,
+            message.guild.id if message.guild else None,
+            message.guild.name if message.guild else None,
+            message.channel.id,
+            message.channel.name,
+            message.author.id,
+            message.author.name,
+            message.content,
+            message.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        )
+        DB.query(SQLCommands.INSERT_MESSAGE.value, params)
 
         # Do not do anything if :
-        if message.author.id in IGNORES: return # author is in ignore list
         if message.author.bot : return # author is a bot (icky who would want to be a bot?)
         
         # Starboard features
@@ -33,16 +49,18 @@ class hListener(dCommands.Cog):
                 await message.add_reaction(STARBOARD_EMOJI)
 
         url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
-        if url_pattern.search(message.content) and GUILD.guildConfig["scrapegifs"]:
+        if url_pattern.search(message.content) and GUILD.Config["scrapegifs"]:
             link = re.findall(url_pattern, message.content)[0]
             uResponse.add("random", False, link)
             print(f"[RESPONSE] scalped and found gif {link}")
 
-        if GUILD.guildConfig["chatcompletions"]:
+        if GUILD.Config["chatcompletions"]:
             Chatterbox = AIChatbot(f"You are an observer of a discord conversation in a server called {GUILD.guildName}")
             Context = await Chatterbox.channelToGPT(message.channel)
             Completion = Chatterbox.chatCompletion(Context)
             print("[AI] " + Completion)
+
+        DB.__del__()
 
     @dCommands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
