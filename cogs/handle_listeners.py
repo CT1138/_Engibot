@@ -41,7 +41,7 @@ class hListener(dCommands.Cog):
 
         # Do not do anything if :
         if message.author.bot : return # author is a bot (icky who would want to be a bot?)
-        
+        if message.author.id == self.bot.user.id : return # message is from the bot itself
         # Starboard features
         if message.attachments:
             if CHANNELTYPE == ChannelType.ART:
