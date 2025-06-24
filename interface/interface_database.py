@@ -82,7 +82,6 @@ class IF_Database:
         try:
             self.cursor.execute(query, params)
             self.connection.commit()
-            print(f"[DB] Query: [{query}][{params}] executed successfully.")
         except Error as e:
             print(f"[DB] Error executing query: {e}")
             self.connection.rollback()
