@@ -9,48 +9,48 @@ class IF_Response:
 
     async def _get_strings_and_urls(self, key: str, param: str):
         await self.db.connect()
-        result = self.db.fetch(SQLCommands.GET_RESPONSES.value, (key,), all=True)
+        responses = self.db.fetch(SQLCommands.GET_RESPONSES.value, (key,), all=True)
+        urls = self.db.fetch(SQLCommands.GET_GIFS.value, (key,), all=True)
 
-        strings = []
-        urls = []
-
-        for row in result:
-            content = row["content"].replace("{x}", param)
-            if content.startswith("http"):
-                urls.append(content)
-            else:
-                strings.append(content)
+        response_strings = [row["content"] for row in responses] if responses else []
+        url_strings = [row["content"] for row in urls] if urls else []
 
         MAX_LENGTH = 2000
-        strings = uString.shorten_string(strings, MAX_LENGTH)
-        urls = uString.shorten_string(urls, MAX_LENGTH)
+        response_strings = uString.shorten_string(response_strings, MAX_LENGTH)
+        url_strings = uString.shorten_string(url_strings, MAX_LENGTH)
 
-        return strings, urls
+        return response_strings, url_strings
 
     async def get_array(self, key="!placeholder", param="!placeholder"):
         return await self._get_strings_and_urls(key, param)
 
-    async def get_random(self, key="!placeholder", param="!placeholder"):
-        strings, urls = await self._get_strings_and_urls(key, param)
+    async def getRandom(self, key="!placeholder", param="!placeholder"):
+        response, urls = await self._get_strings_and_urls(key, param)
 
-        s = random.choice(strings) if strings else ""
+        s = random.choice(response) if response else ""
         u = random.choice(urls) if urls else ""
         return [s, u]
 
     async def get_last(self, key="!placeholder", param="!placeholder"):
-        strings, urls = await self._get_strings_and_urls(key, param)
-        return [strings[-1] if strings else "", urls[-1] if urls else ""]
+        response, urls = await self._get_strings_and_urls(key, param)
+        return [response[-1] if response else "", urls[-1] if urls else ""]
 
     async def get(self, key="!placeholder", param="!placeholder", index=0):
-        strings, urls = await self._get_strings_and_urls(key, param)
-        s = strings[index] if index < len(strings) else ""
+        response, urls = await self._get_strings_and_urls(key, param)
+        s = response[index] if index < len(response) else ""
         u = urls[index] if index < len(urls) else ""
         return [s, u]
 
-    async def add(self, key: str, is_response: bool, phrase: str):
+    async def add(self, key: str, phrase: str, gif=False):
         await self.db.connect()
         value = phrase.strip()
         if not value:
             return
 
-        self.db.query(SQLCommands.INSERT_RESPONSE.value, (key, value))
+        if gif:
+            if not value.startswith("http"):
+                raise ValueError("GIF value must be a valid URL starting with 'http'")
+            value = value.strip()
+            self.db.query(SQLCommands.INSERT_GIF.value, (key, value))
+        else:
+            self.db.query(SQLCommands.INSERT_RESPONSE.value, (key, value))

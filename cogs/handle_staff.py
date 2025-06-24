@@ -75,7 +75,6 @@ class hStaff(dCommands.Cog):
 
         # If it is flagged by our guidelines too, we delete the message
         if flagged :
-            print("flagged")
             # Delete and message user
             # await message.delete()
             await message.channel.send(f"{message.author.mention} your message has been flagged by my moderation engine, if you believe this was wrong, ping a <@&1372047838770626640> member and they may review this incident.")

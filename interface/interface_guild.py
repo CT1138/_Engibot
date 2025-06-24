@@ -149,9 +149,7 @@ class IF_Guild:
             return []
         
         channel_ids = channel_config.get(config_key, [])
-        if index < 1 or index > len(channel_ids):
-            return None
-        return self.guild.get_channel(channel_ids[index - 1])
+        return self.guild.get_channel(channel_ids[index])
     
     def getChannelsOfType(self, type: ChannelType) -> list[discord.abc.GuildChannel]:
         channel_config = self.Config.get("channel", {})
@@ -174,11 +172,11 @@ class IF_Guild:
         return self.guild.get_role(id)
     
     def getChannelType(self, id: int) -> ChannelType:
-        for key, enum_type in TYPEMAPPING.items():
-            list = self.Config.get("channel", {}).get(key, [])
-            if id in list:
+        for enum_type, key in TYPEMAPPING.items():
+            channel_list = self.Config.get("channel", {}).get(key, [])
+            if id in channel_list:
                 return enum_type
-            return None
+        return None
         
     def getPrefix(self) -> str:
         return self.Config.get("command-prefix", "!")
