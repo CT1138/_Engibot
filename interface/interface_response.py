@@ -21,7 +21,7 @@ class IF_Response:
 
         return response_strings, url_strings
 
-    async def get_array(self, key="!placeholder", param="!placeholder"):
+    async def getArray(self, key="!placeholder", param="!placeholder"):
         return await self._get_strings_and_urls(key, param)
 
     async def getRandom(self, key="!placeholder", param="!placeholder"):
@@ -31,7 +31,7 @@ class IF_Response:
         u = random.choice(urls) if urls else ""
         return [s, u]
 
-    async def get_last(self, key="!placeholder", param="!placeholder"):
+    async def getLast(self, key="!placeholder", param="!placeholder"):
         response, urls = await self._get_strings_and_urls(key, param)
         return [response[-1] if response else "", urls[-1] if urls else ""]
 
