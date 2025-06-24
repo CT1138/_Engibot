@@ -44,9 +44,7 @@ class IF_Database:
             'host': TOKENS["MySQL"]["host"],
             'user': TOKENS["MySQL"]["user"],
             'password': TOKENS["MySQL"]["password"],
-            'database': TOKENS["MySQL"]["database"],
-            'charset': 'utf8mb4',
-            'collation': 'utf8mb4_unicode_ci'
+            'database': TOKENS["MySQL"]["database"]
         }
         self.connection = None
         self.cursor = None
@@ -55,6 +53,10 @@ class IF_Database:
         try:
             self.connection = mariadb.connect(**self.config)
             self.cursor = self.connection.cursor(dictionary=True)
+            self.cursor.execute("SET NAMES utf8mb4;")
+            self.cursor.execute("SET CHARACTER SET utf8mb4;")
+            self.cursor.execute("SET character_set_connection=utf8mb4;")
+            
             msg = "[DB] Successfully connected to MariaDB."
             return msg
         except Error as e:
