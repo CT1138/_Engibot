@@ -68,9 +68,13 @@ class hFun(dCommands.Cog):
         await ctx.defer()
 
     @fun.command("add", with_app_command=True, description="Add prompts, gifs, quotes, or memories to my database")
-    async def add(self, ctx: dCommands.context, key: str, value: str, param: str = ""):
+    async def add(self, ctx: dCommands.context, key="", value="", param: str = ""):
         STRING = uString.shorten_string(value, 2000)
         RESPONSE = await self.response.getRandom("finishAdd", result_type=ResultType.RESPONSE)
+
+        if not key or not value:
+            await ctx.reply("Please provide both a key and a value to add... valied keys: response, gif, memory, quotebook")
+            return
 
         # Validate ResultType
         try:
