@@ -127,6 +127,9 @@ class hStaff(dCommands.Cog):
     @staff.command(name="cache-quotebook", description="Cache quotebook data")
     @app_commands.describe(limit="Number of messages to process (max 500)")
     async def cache_quotebook(self, ctx: dCommands.Context, limit: int):
+        db = IF_Database()
+        await db.connect()
+
         if limit < 1 or limit > 500:
             await ctx.send("Limit must be between 1 and 500.")
             return
@@ -171,7 +174,7 @@ class hStaff(dCommands.Cog):
             if image_url or starts_with_quote:
                 content_to_upload = image_url if image_url else msg.content
                 try:
-                    await interface_guild.db.query(
+                    await db.query(
                         SQLCommands.INSERT_QUOTEBOOK,
                         (
                             interface_guild.guildName,  # key
