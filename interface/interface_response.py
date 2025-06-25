@@ -17,21 +17,21 @@ class IF_Response:
         await self.db.connect()
 
         if result_type == ResultType.RESPONSE:
-            data = self.db.fetch(SQLCommands.GET_RESPONSES.value, (key), all=True)
+            data = self.db.fetch(SQLCommands.GET_RESPONSES.value, (key,), all=True)
             values = [row["content"] for row in data] if data else []
             return uString.shorten_string(values, 2000)
 
         elif result_type == ResultType.URL:
-            data = self.db.fetch(SQLCommands.GET_GIFS.value, (key), all=True)
+            data = self.db.fetch(SQLCommands.GET_GIFS.value, (key,), all=True)
             values = [row["content"] for row in data] if data else []
             return uString.shorten_string(values, 2000)
 
         elif result_type == ResultType.MEMORY:
-            data = self.db.fetch(SQLCommands.GET_MEMORY.value, (key), all=True)
+            data = self.db.fetch(SQLCommands.GET_MEMORY.value, (key,), all=True)
             return [row["content"] for row in data] if data else []
 
         elif result_type == ResultType.QUOTEBOOK:
-            data = self.db.fetch(SQLCommands.GET_QUOTEBOOK.value, (key), all=True)
+            data = self.db.fetch(SQLCommands.GET_QUOTEBOOK.value, (key,), all=True)
             return [row["content"] for row in data] if data else []
 
         else:
