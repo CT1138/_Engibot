@@ -83,17 +83,6 @@ class hFun(dCommands.Cog):
             await ctx.reply("Invalid type. Choose from: response, gif, memory, quotebook")
             return
 
-        # Moderation check in case the user is naughty
-        if result_type in {ResultType.RESPONSE, ResultType.MEMORY, ResultType.QUOTEBOOK}:
-            moderator = aimoderator.AIModerator(ctx.guild)
-            await moderator.initialize()
-            flagged, aiflagged, moderation_response = moderator.scanText(STRING)
-
-            if flagged:
-                await ctx.message.delete()
-                await ctx.send(f"{ctx.author.mention} Your message was flagged and won't be added to my database.")
-                return
-
         # Validate content
         if not value:
             await ctx.reply("Please provide a value to add.")
