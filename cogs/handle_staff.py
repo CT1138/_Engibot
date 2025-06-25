@@ -125,28 +125,28 @@ class hStaff(dCommands.Cog):
 
     @staff.command(name="cache-quotebook", description="Cache quotebook data")
     @app_commands.describe(limit="Number of messages to process (max 500)")
-    async def cache_quotebook(self, interaction: discord.Interaction, limit: int):
+    async def cache_quotebook(self, ctx: dCommands.Context, limit: int):
         if limit < 1 or limit > 500:
-            await interaction.response.send_message("Limit must be between 1 and 500.", ephemeral=True)
+            await ctx.send("Limit must be between 1 and 500.", ephemeral=True)
             return
 
-        await interaction.response.defer(ephemeral=True)
+        await ctx.defer(ephemeral=True)
 
-        guild = interaction.guild
+        guild = ctx.guild
         if guild is None:
-            await interaction.followup.send("This command can only be used in a guild.", ephemeral=True)
+            await ctx.send("This command can only be used in a guild.", ephemeral=True)
             return
-
+        
         interface_guild = IF_Guild(guild)
         await interface_guild.initialize()
 
-        if interface_guild.isStaff(interaction.user.id) is False:
-            await interaction.followup.send("You do not have permission to use this command.", ephemeral=True)
+        if interface_guild.isStaff(ctx.user.id) is False:
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
         quotebook_channel = await interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
         if quotebook_channel is None:
-            await interaction.followup.send("Quotebook channel not found.", ephemeral=True)
+            await ctx.send("Quotebook channel not found.", ephemeral=True)
             return
 
         messages = await quotebook_channel.history(limit=limit).flatten()
@@ -188,63 +188,63 @@ class hStaff(dCommands.Cog):
                 except Exception as e:
                     print(f"Error uploading message {msg.id}: {e}")
 
-        await interaction.followup.send(f"Cached {uploaded_count} messages from the quotebook channel.", ephemeral=True)
+        await ctx.send(f"Cached {uploaded_count} messages from the quotebook channel.", ephemeral=True)
 
 
     @staff.command(name="set-channel", description="Add the current channel to a channel type")
     @app_commands.describe(channel_type="Type of channel to set (quotebook, starboard, art, silly, staff, staff-log, ignore)")
-    async def set_channel(self, interaction: discord.Interaction, channel_type: str = None):
-        interface_guild = IF_Guild(interaction.guild)
+    async def set_channel(self, ctx: dCommands.Context, channel_type: str = None):
+        interface_guild = IF_Guild(ctx.guild)
         await interface_guild.initialize()
 
-        if not interface_guild.isStaff(interaction.user.id):
-            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        if not interface_guild.isStaff(ctx.user.id):
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
         ctype = self._get_channel_type(channel_type)
         if ctype is None:
             available = self._format_available_types()
-            await interaction.response.send_message(
+            await ctx.send(
                 f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
             )
             return
 
-        success = await interface_guild.setChannelType(interaction.channel.id, ctype)
+        success = await interface_guild.setChannelType(ctx.channel.id, ctype)
         if success:
-            await interaction.response.send_message(f"Channel added to **{channel_type}** type.", ephemeral=True)
+            await ctx.send(f"Channel added to **{channel_type}** type.", ephemeral=True)
         else:
-            await interaction.response.send_message(f"Channel is already part of **{channel_type}** or failed to add.", ephemeral=True)
+            await ctx.send(f"Channel is already part of **{channel_type}** or failed to add.", ephemeral=True)
 
     @staff.command(name="unset-channel", description="Remove the current channel from a channel type")
     @app_commands.describe(channel_type="Type of channel to remove (quotebook, starboard, art, silly, staff, staff-log, ignore)")
-    async def unset_channel(self, interaction: discord.Interaction, channel_type: str = None):
-        interface_guild = IF_Guild(interaction.guild)
+    async def unset_channel(self, ctx: dCommands.Context, channel_type: str = None):
+        interface_guild = IF_Guild(ctx.guild)
         await interface_guild.initialize()
 
-        if not interface_guild.isStaff(interaction.user.id):
-            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        if not interface_guild.isStaff(ctx.user.id):
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
         ctype = self._get_channel_type(channel_type)
         if ctype is None:
             available = self._format_available_types()
-            await interaction.response.send_message(
+            await ctx.send(
                 f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
             )
             return
 
-        success = await interface_guild.unsetChannelType(interaction.channel.id, ctype)
+        success = await interface_guild.unsetChannelType(ctx.channel.id, ctype)
         if success:
-            await interaction.response.send_message(f"Channel removed from **{channel_type}** type.", ephemeral=True)
+            await ctx.send(f"Channel removed from **{channel_type}** type.", ephemeral=True)
         else:
-            await interaction.response.send_message(f"Channel was not part of **{channel_type}** or failed to remove.", ephemeral=True)
+            await ctx.send(f"Channel was not part of **{channel_type}** or failed to remove.", ephemeral=True)
 
     @staff.command(name="channel-info", description="Show which channel types the current channel belongs to")
-    async def channel_info(self, interaction: discord.Interaction):
-        interface_guild = IF_Guild(interaction.guild)
+    async def channel_info(self, ctx: dCommands.Context):
+        interface_guild = IF_Guild(ctx.guild)
         await interface_guild.initialize()
 
-        channel_id = interaction.channel.id
+        channel_id = ctx.channel.id
         channel_config = interface_guild.Config.get("channel", {})
 
         matching_types = []
@@ -253,10 +253,10 @@ class hStaff(dCommands.Cog):
                 matching_types.append(key)
 
         if not matching_types:
-            await interaction.response.send_message("This channel is not assigned to any special categories.", ephemeral=True)
+            await ctx.send("This channel is not assigned to any special categories.", ephemeral=True)
         else:
             types_list = ", ".join(matching_types)
-            await interaction.response.send_message(f"This channel belongs to the following categories:\n{types_list}", ephemeral=True)
+            await ctx.send(f"This channel belongs to the following categories:\n{types_list}", ephemeral=True)
 
 
 async def setup(bot):
