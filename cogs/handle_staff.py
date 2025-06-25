@@ -173,18 +173,15 @@ class hStaff(dCommands.Cog):
 
             if image_url or starts_with_quote:
                 content_to_upload = image_url if image_url else msg.content
-                try:
-                    await db.query(
-                        SQLCommands.INSERT_QUOTEBOOK,
-                        (
-                            interface_guild.guildName,  # key
-                            content_to_upload           # content
-                        ),
-                    )
-                    uploaded_count += 1
-                except Exception as e:
-                    print(f"[ERROR] Uploading message {msg.id} ({msg.jump_url}) failed:")
-                    traceback.print_exc()
+                print("Content to Upload: " + content_to_upload)
+                await db.query(
+                    SQLCommands.INSERT_QUOTEBOOK,
+                    (
+                        interface_guild.guildName,  # key
+                        content_to_upload           # content
+                    ),
+                )
+                uploaded_count += 1
 
         await ctx.send(f"Cached {uploaded_count} messages from the quotebook channel.")
 
