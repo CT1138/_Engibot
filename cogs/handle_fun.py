@@ -2,7 +2,9 @@ import discord
 from discord.ext import commands as dCommands
 from interface.interface_response import IF_Response, ResultType
 import util.utils_string as uString
-import aimoderator
+import random
+import datetime
+import os
 
 class hFun(dCommands.Cog):
     def __init__(self, bot):
@@ -67,6 +69,50 @@ class hFun(dCommands.Cog):
         else:
             await ctx.send("No memories found! Quit slacking!")
         await ctx.defer()
+
+    @fun.command("collection", with_app_command=True, description="View a random image from a collection")
+    async def collection(self, ctx: dCommands.Context, collection: str = None, index: int = -1):
+        if not collection:
+            collections = self.db.getCollections(ctx.guild.id)
+            await ctx.send(f"Please specify a collection name. Available collections: {', '.join(collections)}")
+            return
+
+        images = self.db.getImagesByCollection(ctx.guild.id, collection)
+        if not images:
+            await ctx.send(f"No images found in the `{collection}` collection. Either create one or add images to it.")
+            return
+
+        if index == -1:
+            image = images[random.randint(0, len(images) - 1)]
+        else:
+            image = images[index]
+
+        await ctx.send(file=image)
+
+    @fun.command("add-to-collection", description="Upload an image to a collection")
+    async def add_to_collection(self, ctx: dCommands.Context, collection: str = None):
+        if not collection:
+            collections = self.db.getCollections(ctx.guild.id)
+            await ctx.send(f"Please specify a collection name. Available collections: {', '.join(collections)}")
+            return
+
+        if not ctx.message.attachments:
+            await ctx.send("Please attach an image to upload.")
+            return
+
+        attachment = ctx.message.attachments[0]
+        if not attachment.content_type.startswith("image/"):
+            await ctx.send("Only image files are supported.")
+            return
+
+        rel_path = await self.db.addImage(
+            attachment,
+            guild_id=ctx.guild.id,
+            author_id=ctx.author.id,
+            collection=collection
+        )
+
+        await ctx.send(f"Image saved in `{collection}` collection.")
 
     @fun.command("add", with_app_command=True, description="Add prompts, gifs, quotes, or memories to my database")
     async def add(self, ctx: dCommands.context, key="", value=""):

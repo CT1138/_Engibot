@@ -1,7 +1,6 @@
-# Functionally empty for now until I get my raspberry pi setup with mariadb
-# TODO: Write interface
-# TODO: As interface is implemented, write specialized getters and setters for common operations
 import mariadb
+import os
+from datetime import datetime
 from enum import Enum
 from mariadb import Error
 from interface.interface_json import IF_JSON
@@ -40,6 +39,9 @@ class SQLCommands(Enum):
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE content = VALUES(content)
     """
+    INSERT_IMAGE = "INSERT INTO images (guild_id, author_id, collection, filepath) VALUES (%s, %s, %s, %s)"
+    GET_IMAGES_BY_COLLECTION = "SELECT * FROM images WHERE guild_id = %s AND collection = %s"
+    GET_ALL_COLLECTIONS = "SELECT DISTINCT collection FROM images WHERE guild_id = %s"
 
 
 class IF_Database:
@@ -117,6 +119,33 @@ class IF_Database:
     def getIgnoredUsers(self, guild_id: int) -> list[int]:
         rows = self.fetch(SQLCommands.GET_ALL_IGNORED_USERS.value, (guild_id,), all=True)
         return [row["user_id"] for row in rows] if rows else []
+    
+    async def addImage(self, attachment, guild_id: int, author_id: int, collection: str, path="/srv/engibot/images") -> str:
+        guild_folder = os.path.join(path, str(guild_id), collection)
+        os.makedirs(guild_folder, exist_ok=True)
+
+        # Save with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"collection_{author_id}_{timestamp}_{attachment.filename.lower()}"
+        full_path = os.path.join(guild_folder, filename)
+
+        # Save the image
+        await attachment.save(full_path)
+
+        # Store relative path
+        rel_path = os.path.relpath(full_path)
+
+        # Insert into database
+        self.query(SQLCommands.INSERT_IMAGE.value, (guild_id, author_id, collection, rel_path))
+
+        return rel_path
+
+    def getImagesByCollection(self, guild_id: int, collection: str) -> list[dict]:
+        return self.fetch(SQLCommands.GET_IMAGES_BY_COLLECTION.value, (guild_id, collection), all=True)
+
+    def getCollections(self, guild_id: int) -> list[str]:
+        rows = self.fetch(SQLCommands.GET_ALL_COLLECTIONS.value, (guild_id,), all=True)
+        return [row["collection"] for row in rows]
 
     def __del__(self):
         self.disconnect()
