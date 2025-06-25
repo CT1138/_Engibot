@@ -18,11 +18,12 @@ STATUS = CONFIG.json["status"]
 
 class hStaff(dCommands.Cog):
     def __init__(self, bot):
+        self.response = IF_Response()
         self.bot = bot
 
     @dCommands.hybrid_group(name="staff", with_app_command=True, invoke_without_command=True)
     async def staff(self, ctx):
-        RESPONSE = await IF_Response.getRandom("failedKill", result_type=ResultType.RESPONSE)
+        RESPONSE = await self.response.getRandom("failedKill", result_type=ResultType.RESPONSE)
         await ctx.send(RESPONSE)
         await ctx.defer()
 
@@ -99,7 +100,7 @@ class hStaff(dCommands.Cog):
     # Pure slash command: kill
     @staff.command(name="kill", description="Shut down the bot")
     async def kill(self, interaction: discord.Interaction):
-        RESPONSE = IF_Response.getRandom("failedKill")
+        RESPONSE = self.response.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
         await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
@@ -111,7 +112,7 @@ class hStaff(dCommands.Cog):
     # Pure slash command: restart
     @staff.command(name="restart", description="Restart the bot")
     async def restart(self, interaction: discord.Interaction):
-        RESPONSE = IF_Response.getRandom("failedKill")
+        RESPONSE = self.response.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
         await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
