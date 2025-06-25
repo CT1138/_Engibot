@@ -174,13 +174,7 @@ class hStaff(dCommands.Cog):
             if image_url or starts_with_quote:
                 content_to_upload = image_url if image_url else msg.content
                 print("Content to Upload: " + content_to_upload)
-                await db.query(
-                    SQLCommands.INSERT_QUOTEBOOK,
-                    (
-                        interface_guild.guildName,  # key
-                        content_to_upload           # content
-                    ),
-                )
+                await db.query(SQLCommands.INSERT_QUOTEBOOK.value, (interface_guild.guildName, content_to_upload))
                 uploaded_count += 1
 
         await ctx.send(f"Cached {uploaded_count} messages from the quotebook channel.")
