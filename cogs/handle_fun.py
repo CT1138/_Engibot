@@ -1,10 +1,9 @@
 import discord
 from discord.ext import commands as dCommands
+from interface.interface_database import IF_Database
 from interface.interface_response import IF_Response, ResultType
 import util.utils_string as uString
 import random
-import datetime
-import os
 
 class hFun(dCommands.Cog):
     def __init__(self, bot):
@@ -72,12 +71,15 @@ class hFun(dCommands.Cog):
 
     @fun.command("collection", with_app_command=True, description="View a random image from a collection")
     async def collection(self, ctx: dCommands.Context, collection: str = None, index: int = -1):
+        db = IF_Database()
+        await db.connect()
+
         if not collection:
-            collections = self.db.getCollections(ctx.guild.id)
+            collections = db.getCollections(ctx.guild.id)
             await ctx.send(f"Please specify a collection name. Available collections: {', '.join(collections)}")
             return
 
-        images = self.db.getImagesByCollection(ctx.guild.id, collection)
+        images = db.getImagesByCollection(ctx.guild.id, collection)
         if not images:
             await ctx.send(f"No images found in the `{collection}` collection. Either create one or add images to it.")
             return
@@ -91,8 +93,11 @@ class hFun(dCommands.Cog):
 
     @fun.command("add-to-collection", description="Upload an image to a collection")
     async def add_to_collection(self, ctx: dCommands.Context, collection: str = None):
+        db = IF_Database()
+        await db.connect()
+
         if not collection:
-            collections = self.db.getCollections(ctx.guild.id)
+            collections = db.getCollections(ctx.guild.id)
             await ctx.send(f"Please specify a collection name. Available collections: {', '.join(collections)}")
             return
 
@@ -105,7 +110,7 @@ class hFun(dCommands.Cog):
             await ctx.send("Only image files are supported.")
             return
 
-        rel_path = await self.db.addImage(
+        rel_path = await db.addImage(
             attachment,
             guild_id=ctx.guild.id,
             author_id=ctx.author.id,
