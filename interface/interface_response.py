@@ -69,9 +69,7 @@ class IF_Response:
             self.db.query(SQLCommands.INSERT_GIF.value, (key, value))
 
         elif result_type == ResultType.MEMORY:
-            if not param:
-                raise ValueError("MEMORY entries require a 'param' argument.")
-            self.db.query(SQLCommands.INSERT_MEMORY.value, (key, param, value))
+            self.db.query(SQLCommands.INSERT_MEMORY.value, (key, value))
 
         elif result_type == ResultType.QUOTEBOOK:
             self.db.query(SQLCommands.INSERT_QUOTEBOOK.value, (key, value))
