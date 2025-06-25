@@ -3,6 +3,7 @@ import sys
 import discord
 import datetime
 import aimoderator
+import traceback
 from interface.interface_guild import IF_Guild, ChannelType, TYPEMAPPING
 from discord import utils as dUtils, File, app_commands
 from discord.ext import commands as dCommands
@@ -173,20 +174,14 @@ class hStaff(dCommands.Cog):
                     await interface_guild.db.query(
                         SQLCommands.INSERT_QUOTEBOOK,
                         (
-                            msg.id,
-                            interface_guild.guildID,
-                            interface_guild.guildName,
-                            msg.channel.id,
-                            msg.channel.name,
-                            msg.author.id,
-                            msg.author.name,
-                            content_to_upload,
-                            msg.created_at,
+                            interface_guild.guildName,  # key
+                            content_to_upload           # content
                         ),
                     )
                     uploaded_count += 1
                 except Exception as e:
-                    print(f"Error uploading message {msg.id}: {e}")
+                    print(f"[ERROR] Uploading message {msg.id} ({msg.jump_url}) failed:")
+                    traceback.print_exc()
 
         await ctx.send(f"Cached {uploaded_count} messages from the quotebook channel.")
 
