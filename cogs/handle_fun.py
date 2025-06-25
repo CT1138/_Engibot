@@ -93,7 +93,6 @@ class hFun(dCommands.Cog):
                 key="random",
                 phrase=STRING,
                 result_type=result_type,
-                param=param
             )
             await ctx.reply(RESPONSE)
         except Exception as e:
