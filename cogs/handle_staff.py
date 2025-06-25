@@ -3,10 +3,11 @@ import sys
 import discord
 import datetime
 import aimoderator
-from interface.interface_guild import IF_Guild, ChannelType
+from interface.interface_guild import IF_Guild, ChannelType, TYPEMAPPING
 from discord import utils as dUtils, File, app_commands
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
+from interface.interface_database import IF_Database, SQLCommands
 import interface.interface_response as uResponse
 
 # Read Configs
@@ -26,6 +27,15 @@ class hStaff(dCommands.Cog):
             for f in os.listdir(path)
             if f.endswith(".json") and f != "tokens.json"
         ]
+    
+    def _get_channel_type(self, input_str: str) -> ChannelType | None:
+        for ctype, name in TYPEMAPPING.items():
+            if name.lower() == input_str.lower():
+                return ctype
+        return None
+    
+    def _format_available_types(self) -> str:
+        return "\n".join(f"- {name}" for name in TYPEMAPPING.values())
 
     # Content Filter
     @dCommands.Cog.listener()
@@ -81,7 +91,7 @@ class hStaff(dCommands.Cog):
                 await STAFFLOG.send("<@&1372047838770626640>")
 
     # Pure slash command: kill
-    @app_commands.command(name="kill", description="Shut down the bot")
+    @app_commands.command(name="kill", description="Shut down the bot", with_app_command=True, invoke_without_command=True)
     async def kill(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
@@ -93,7 +103,7 @@ class hStaff(dCommands.Cog):
             await interaction.response.send_message(RESPONSE, ephemeral=True)
 
     # Pure slash command: restart
-    @app_commands.command(name="restart", description="Restart the bot")
+    @app_commands.command(name="restart", description="Restart the bot", with_app_command=True, invoke_without_command=True)
     async def restart(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
@@ -104,6 +114,143 @@ class hStaff(dCommands.Cog):
             os.execv(sys.executable, [sys.executable] + sys.argv)
         else:
             await interaction.response.send_message(RESPONSE, ephemeral=True)
+
+
+    @app_commands.command(name="cache-quotebook", description="Cache quotebook data", with_app_command=True, invoke_without_command=True)
+    @app_commands.describe(limit="Number of messages to process (max 500)")
+    async def cache_quotebook(self, interaction: discord.Interaction, limit: int):
+        if limit < 1 or limit > 500:
+            await interaction.response.send_message("Limit must be between 1 and 500.", ephemeral=True)
+            return
+
+        await interaction.response.defer(ephemeral=True)
+
+        guild = interaction.guild
+        if guild is None:
+            await interaction.followup.send("This command can only be used in a guild.", ephemeral=True)
+            return
+
+        interface_guild = IF_Guild(guild)
+        await interface_guild.initialize()
+
+        if interface_guild.isStaff(interaction.user.id) is False:
+            await interaction.followup.send("You do not have permission to use this command.", ephemeral=True)
+            return
+
+        quotebook_channel = await interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
+        if quotebook_channel is None:
+            await interaction.followup.send("Quotebook channel not found.", ephemeral=True)
+            return
+
+        messages = await quotebook_channel.history(limit=limit).flatten()
+        uploaded_count = 0
+
+        for msg in messages:
+            image_url = None
+            if msg.attachments:
+                for att in msg.attachments:
+                    if att.content_type and att.content_type.startswith("image"):
+                        image_url = att.url
+                        break
+            if not image_url and msg.embeds:
+                for embed in msg.embeds:
+                    if embed.image and embed.image.url:
+                        image_url = embed.image.url
+                        break
+
+            starts_with_quote = msg.content.startswith('"') if msg.content else False
+
+            if image_url or starts_with_quote:
+                content_to_upload = image_url if image_url else msg.content
+                try:
+                    await interface_guild.db.query(
+                        SQLCommands.INSERT_QUOTEBOOK,
+                        (
+                            msg.id,
+                            interface_guild.guildID,
+                            interface_guild.guildName,
+                            msg.channel.id,
+                            msg.channel.name,
+                            msg.author.id,
+                            msg.author.name,
+                            content_to_upload,
+                            msg.created_at,
+                        ),
+                    )
+                    uploaded_count += 1
+                except Exception as e:
+                    print(f"Error uploading message {msg.id}: {e}")
+
+        await interaction.followup.send(f"Cached {uploaded_count} messages from the quotebook channel.", ephemeral=True)
+
+
+    @app_commands.command(name="set-channel", description="Add the current channel to a channel type", with_app_command=True, invoke_without_command=True)
+    @app_commands.describe(channel_type="Type of channel to set (quotebook, starboard, art, silly, staff, staff-log, ignore)")
+    async def set_channel(self, interaction: discord.Interaction, channel_type: str = None):
+        interface_guild = IF_Guild(interaction.guild)
+        await interface_guild.initialize()
+
+        if not interface_guild.isStaff(interaction.user.id):
+            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+            return
+
+        ctype = self._get_channel_type(channel_type)
+        if ctype is None:
+            available = self._format_available_types()
+            await interaction.response.send_message(
+                f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
+            )
+            return
+
+        success = await interface_guild.addChannelToType(interaction.channel.id, ctype)
+        if success:
+            await interaction.response.send_message(f"Channel added to **{channel_type}** type.", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"Channel is already part of **{channel_type}** or failed to add.", ephemeral=True)
+
+    @app_commands.command(name="unset-channel", description="Remove the current channel from a channel type", with_app_command=True, invoke_without_command=True)
+    @app_commands.describe(channel_type="Type of channel to remove (quotebook, starboard, art, silly, staff, staff-log, ignore)")
+    async def unset_channel(self, interaction: discord.Interaction, channel_type: str = None):
+        interface_guild = IF_Guild(interaction.guild)
+        await interface_guild.initialize()
+
+        if not interface_guild.isStaff(interaction.user.id):
+            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+            return
+
+        ctype = self._get_channel_type(channel_type)
+        if ctype is None:
+            available = self._format_available_types()
+            await interaction.response.send_message(
+                f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
+            )
+            return
+
+        success = await interface_guild.removeChannelFromType(interaction.channel.id, ctype)
+        if success:
+            await interaction.response.send_message(f"Channel removed from **{channel_type}** type.", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"Channel was not part of **{channel_type}** or failed to remove.", ephemeral=True)
+
+    @app_commands.command(name="channel-info", description="Show which channel types the current channel belongs to", with_app_command=True, invoke_without_command=True)
+    async def channel_info(self, interaction: discord.Interaction):
+        interface_guild = IF_Guild(interaction.guild)
+        await interface_guild.initialize()
+
+        channel_id = interaction.channel.id
+        channel_config = interface_guild.Config.get("channel", {})
+
+        matching_types = []
+        for ctype, key in TYPEMAPPING.items():
+            if channel_id in channel_config.get(key, []):
+                matching_types.append(key)
+
+        if not matching_types:
+            await interaction.response.send_message("This channel is not assigned to any special categories.", ephemeral=True)
+        else:
+            types_list = ", ".join(matching_types)
+            await interaction.response.send_message(f"This channel belongs to the following categories:\n{types_list}", ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(hStaff(bot))

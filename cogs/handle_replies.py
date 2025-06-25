@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
-from interface.interface_response import IF_Response
+from interface.interface_response import IF_Response, ResultType
 from interface.interface_json import IF_JSON
 import util.utils_math as uMath
 
@@ -28,7 +28,9 @@ class hReplies(dCommands.Cog):
         
         if not CHANNELTYPE == ChannelType.SILLY : return
 
-        RESPONSE, URL = await self.response.getRandom("random")
+        RESPONSE = await self.response.getRandom("random" , result_type=ResultType.RESPONSE)
+        URL = await self.response.getRandom("random", result_type=ResultType.URL)
+        
         CHANCE = GUILD.getChance("Response")
 
         if uMath.roll(CHANCE, "Response"):

@@ -8,8 +8,12 @@ from interface.interface_json import IF_JSON
 TOKENS = IF_JSON("./__data/tokens.json").json
 
 class SQLCommands(Enum):
+    GET_QUOTEBOOK = "SELECT * FROM quotebook WHERE `key` = %s"
+    GET_MEMORY = "SELECT * FROM memories WHERE `key` = %s"
     GET_RESPONSES = "SELECT * FROM responses WHERE `key` = %s"
     GET_GIFS = "SELECT * FROM urls WHERE `key` = %s"
+    INSERT_QUOTEBOOK = "INSERT INTO quotebook (`key`, content) VALUES (%s, %s)"
+    INSERT_MEMORY = "INSERT INTO memories (`key`, content) VALUES (%s, %s)"
     INSERT_RESPONSE = "INSERT INTO responses (`key`, content) VALUES (%s, %s)"
     INSERT_GIF = "INSERT INTO urls (`key`, content) VALUES (%s, %s)"
     GET_GUILD_CONFIG = "SELECT * FROM guild_config WHERE id = %s"
