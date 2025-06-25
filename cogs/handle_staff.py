@@ -30,18 +30,23 @@ class hStaff(dCommands.Cog):
     # Content Filter
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        # Initialize guild
         GUILD = IF_Guild(message.guild)
         await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
+
+        # Do we even care about this message?
         if CHANNELTYPE == ChannelType.STAFF : return
         if CHANNELTYPE == ChannelType.IGNORE : return
         if message.author.bot : return
-
+        if GUILD.isStaff(message.author.id) : return
         # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
+
         moderator = aimoderator.AIModerator(message.guild)
         await moderator.initialize()
         await moderator.GUILD.initialize()
         flagged, aiflagged, response = moderator.scanText(message.content)
+
         if aiflagged:
             STAFFLOG = GUILD.getChannelByType(ChannelType.STAFFLOG)
             embed = discord.Embed(
