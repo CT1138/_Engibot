@@ -51,7 +51,7 @@ class hFun(dCommands.Cog):
 
     @fun.command("quotebook", with_app_command=True, description="Get a random quote from the book of quotes")
     async def quotebook(self, ctx: dCommands.Context):
-        quote = await self.response.getRandom(key=ctx.guild.name, param="!placeholder", result_type=ResultType.QUOTEBOOK)
+        quote = await self.response.getRandom(key=ctx.guild.name, result_type=ResultType.QUOTEBOOK)
         if quote:
             await ctx.send(quote)
         else:
