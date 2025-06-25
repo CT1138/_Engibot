@@ -91,7 +91,7 @@ class hStaff(dCommands.Cog):
                 await STAFFLOG.send("<@&1372047838770626640>")
 
     # Pure slash command: kill
-    @app_commands.command(name="kill", description="Shut down the bot", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="kill", description="Shut down the bot")
     async def kill(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
@@ -103,7 +103,7 @@ class hStaff(dCommands.Cog):
             await interaction.response.send_message(RESPONSE, ephemeral=True)
 
     # Pure slash command: restart
-    @app_commands.command(name="restart", description="Restart the bot", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="restart", description="Restart the bot")
     async def restart(self, interaction: discord.Interaction):
         RESPONSE, URL = uResponse.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
@@ -116,7 +116,7 @@ class hStaff(dCommands.Cog):
             await interaction.response.send_message(RESPONSE, ephemeral=True)
 
 
-    @app_commands.command(name="cache-quotebook", description="Cache quotebook data", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="cache-quotebook", description="Cache quotebook data")
     @app_commands.describe(limit="Number of messages to process (max 500)")
     async def cache_quotebook(self, interaction: discord.Interaction, limit: int):
         if limit < 1 or limit > 500:
@@ -184,7 +184,7 @@ class hStaff(dCommands.Cog):
         await interaction.followup.send(f"Cached {uploaded_count} messages from the quotebook channel.", ephemeral=True)
 
 
-    @app_commands.command(name="set-channel", description="Add the current channel to a channel type", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="set-channel", description="Add the current channel to a channel type")
     @app_commands.describe(channel_type="Type of channel to set (quotebook, starboard, art, silly, staff, staff-log, ignore)")
     async def set_channel(self, interaction: discord.Interaction, channel_type: str = None):
         interface_guild = IF_Guild(interaction.guild)
@@ -208,7 +208,7 @@ class hStaff(dCommands.Cog):
         else:
             await interaction.response.send_message(f"Channel is already part of **{channel_type}** or failed to add.", ephemeral=True)
 
-    @app_commands.command(name="unset-channel", description="Remove the current channel from a channel type", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="unset-channel", description="Remove the current channel from a channel type")
     @app_commands.describe(channel_type="Type of channel to remove (quotebook, starboard, art, silly, staff, staff-log, ignore)")
     async def unset_channel(self, interaction: discord.Interaction, channel_type: str = None):
         interface_guild = IF_Guild(interaction.guild)
@@ -232,7 +232,7 @@ class hStaff(dCommands.Cog):
         else:
             await interaction.response.send_message(f"Channel was not part of **{channel_type}** or failed to remove.", ephemeral=True)
 
-    @app_commands.command(name="channel-info", description="Show which channel types the current channel belongs to", with_app_command=True, invoke_without_command=True)
+    @app_commands.command(name="channel-info", description="Show which channel types the current channel belongs to")
     async def channel_info(self, interaction: discord.Interaction):
         interface_guild = IF_Guild(interaction.guild)
         await interface_guild.initialize()
