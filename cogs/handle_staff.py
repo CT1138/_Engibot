@@ -171,13 +171,16 @@ class hStaff(dCommands.Cog):
 
             starts_with_quote = msg.content.startswith('"') if msg.content else False
 
-            if image_url or starts_with_quote:
-                content_to_upload = image_url if image_url else msg.content
-                print("Content to Upload: " + content_to_upload)
+        if image_url or starts_with_quote:
+            content_to_upload = image_url if image_url else msg.content
+            print("Content to Upload: " + content_to_upload)
+
+            existing = db.fetch("SELECT 1 FROM quotebook WHERE `key` = %s AND content = %s LIMIT 1", (interface_guild.guildName, content_to_upload))
+            if not existing:
                 db.query(SQLCommands.INSERT_QUOTEBOOK.value, (interface_guild.guildName, content_to_upload))
                 uploaded_count += 1
 
-        await db.disconnect()
+        db.disconnect()
         await ctx.send(f"Cached {uploaded_count} messages from the quotebook channel.")
 
 
