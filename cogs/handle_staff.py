@@ -144,7 +144,7 @@ class hStaff(dCommands.Cog):
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
-        quotebook_channel = await interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
+        quotebook_channel = interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
         if quotebook_channel is None:
             await ctx.send("Quotebook channel not found.", ephemeral=True)
             return
