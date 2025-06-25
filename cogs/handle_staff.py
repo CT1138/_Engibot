@@ -126,7 +126,7 @@ class hStaff(dCommands.Cog):
 
     @staff.command(name="cache-quotebook", description="Cache quotebook data")
     @app_commands.describe(limit="Number of messages to process (max 500)")
-    async def cache_quotebook(self, ctx: dCommands.Context, limit: int):
+    async def cache_quotebook(self, ctx: dCommands.Context, limit=100):
         db = IF_Database()
         await db.connect()
 
