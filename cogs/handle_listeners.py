@@ -51,7 +51,7 @@ class hListener(dCommands.Cog):
         url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
         if url_pattern.search(message.content) and GUILD.Config["scrapegifs"]:
             link = re.findall(url_pattern, message.content)[0]
-            await self.RESPONSE.add("random", link, True)
+            await self.RESPONSE.add("random", link, result_type=IF_Response.ResultType.URL)
             print(f"[RESPONSE] scalped and found gif {link}")
 
         if GUILD.Config["chatcompletions"]:
