@@ -28,11 +28,11 @@ class IF_Response:
 
         elif result_type == ResultType.MEMORY:
             data = self.db.fetch(SQLCommands.GET_MEMORY.value, (key, param), all=True)
-            return [row["memory"] for row in data] if data else []
+            return [row["content"] for row in data] if data else []
 
         elif result_type == ResultType.QUOTEBOOK:
             data = self.db.fetch(SQLCommands.GET_QUOTEBOOK.value, (key,), all=True)
-            return [row["quote"] for row in data] if data else []
+            return [row["content"] for row in data] if data else []
 
         else:
             raise ValueError(f"Unknown result type: {result_type}")
