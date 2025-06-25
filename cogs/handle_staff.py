@@ -140,7 +140,7 @@ class hStaff(dCommands.Cog):
         interface_guild = IF_Guild(guild)
         await interface_guild.initialize()
 
-        if interface_guild.isStaff(ctx.user.id) is False:
+        if interface_guild.isStaff(ctx.author.id) is False:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
@@ -197,7 +197,7 @@ class hStaff(dCommands.Cog):
         interface_guild = IF_Guild(ctx.guild)
         await interface_guild.initialize()
 
-        if not interface_guild.isStaff(ctx.user.id):
+        if not interface_guild.isStaff(ctx.author.id):
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
@@ -221,7 +221,7 @@ class hStaff(dCommands.Cog):
         interface_guild = IF_Guild(ctx.guild)
         await interface_guild.initialize()
 
-        if not interface_guild.isStaff(ctx.user.id):
+        if not interface_guild.isStaff(ctx.author.id):
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
