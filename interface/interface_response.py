@@ -37,24 +37,24 @@ class IF_Response:
         else:
             raise ValueError(f"Unknown result type: {result_type}")
 
-    async def getArray(self, key="!placeholder", param="!placeholder", result_type=ResultType.RESPONSE):
-        return await self.getResult(key, param, result_type)
+    async def getArray(self, key="!placeholder", result_type=ResultType.RESPONSE):
+        return await self.getResult(key, result_type)
 
-    async def getRandom(self, key="!placeholder", param="!placeholder", result_type=ResultType.RESPONSE):
-        result = await self.getResult(key, param, result_type)
+    async def getRandom(self, key="!placeholder", result_type=ResultType.RESPONSE):
+        result = await self.getResult(key, result_type)
         s = random.choice(result) if result else ""
         return s
 
-    async def getLast(self, key="!placeholder", param="!placeholder", result_type=ResultType.RESPONSE):
-        result = await self.getResult(key, param, result_type)
+    async def getLast(self, key="!placeholder", result_type=ResultType.RESPONSE):
+        result = await self.getResult(key, result_type)
         return result[-1] if result else ""
 
-    async def get(self, key="!placeholder", param="!placeholder", index=0, result_type=ResultType.RESPONSE):
-        result = await self.getResult(key, param, result_type)
+    async def get(self, key="!placeholder", index=0, result_type=ResultType.RESPONSE):
+        result = await self.getResult(key, result_type)
         s = result[index] if 0 <= index < len(result) else ""
         return s
 
-    async def add(self, key: str, phrase: str, result_type: ResultType, param: str = ""):
+    async def add(self, key: str, phrase: str, result_type: ResultType):
         await self.db.connect()
         value = phrase.strip()
         if not value:

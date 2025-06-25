@@ -60,7 +60,7 @@ class hFun(dCommands.Cog):
 
     @fun.command("memory", with_app_command=True, description="Get a random memory")
     async def memory(self, ctx: dCommands.Context):
-        memory = await self.response.getRandom(key=ctx.guild.name, param="!placeholder", result_type=ResultType.MEMORY)
+        memory = await self.response.getRandom(key=ctx.guild.name, result_type=ResultType.MEMORY)
         if memory:
             await ctx.send(memory)
         else:
