@@ -12,7 +12,8 @@ class ChannelType(Enum):
     SILLY = 2,
     STAFF = 3,
     STAFFLOG = 4,
-    IGNORE = 5
+    IGNORE = 5,
+    QUOTEBOOK = 6
 
 TYPEMAPPING = {
     ChannelType.QUOTEBOOK: "quotebook",
