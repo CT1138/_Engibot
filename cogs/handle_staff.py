@@ -8,7 +8,7 @@ from discord import utils as dUtils, File, app_commands
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
 from interface.interface_database import IF_Database, SQLCommands
-import interface.interface_response as uResponse
+from interface.interface_response import IF_Response, ResultType
 
 # Read Configs
 CONFIG = IF_JSON("./__data/config.json")
@@ -19,6 +19,12 @@ STATUS = CONFIG.json["status"]
 class hStaff(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @dCommands.hybrid_group(name="staff", with_app_command=True, invoke_without_command=True)
+    async def staff(self, ctx):
+        RESPONSE = await IF_Response.getRandom("failedKill", result_type=ResultType.RESPONSE)
+        await ctx.send(RESPONSE)
+        await ctx.defer()
 
     def get_json_choices(self):
         path = "./__data/"
@@ -91,9 +97,9 @@ class hStaff(dCommands.Cog):
                 await STAFFLOG.send("<@&1372047838770626640>")
 
     # Pure slash command: kill
-    @app_commands.command(name="kill", description="Shut down the bot")
+    @staff.command(name="kill", description="Shut down the bot")
     async def kill(self, interaction: discord.Interaction):
-        RESPONSE, URL = uResponse.getRandom("failedKill")
+        RESPONSE = IF_Response.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
         await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
@@ -103,9 +109,9 @@ class hStaff(dCommands.Cog):
             await interaction.response.send_message(RESPONSE, ephemeral=True)
 
     # Pure slash command: restart
-    @app_commands.command(name="restart", description="Restart the bot")
+    @staff.command(name="restart", description="Restart the bot")
     async def restart(self, interaction: discord.Interaction):
-        RESPONSE, URL = uResponse.getRandom("failedKill")
+        RESPONSE = IF_Response.getRandom("failedKill")
         GUILD = IF_Guild(interaction.guild)
         await GUILD.initialize()
         if GUILD.isStaff(interaction.user.id):
@@ -116,7 +122,7 @@ class hStaff(dCommands.Cog):
             await interaction.response.send_message(RESPONSE, ephemeral=True)
 
 
-    @app_commands.command(name="cache-quotebook", description="Cache quotebook data")
+    @staff.command(name="cache-quotebook", description="Cache quotebook data")
     @app_commands.describe(limit="Number of messages to process (max 500)")
     async def cache_quotebook(self, interaction: discord.Interaction, limit: int):
         if limit < 1 or limit > 500:
@@ -184,7 +190,7 @@ class hStaff(dCommands.Cog):
         await interaction.followup.send(f"Cached {uploaded_count} messages from the quotebook channel.", ephemeral=True)
 
 
-    @app_commands.command(name="set-channel", description="Add the current channel to a channel type")
+    @staff.command(name="set-channel", description="Add the current channel to a channel type")
     @app_commands.describe(channel_type="Type of channel to set (quotebook, starboard, art, silly, staff, staff-log, ignore)")
     async def set_channel(self, interaction: discord.Interaction, channel_type: str = None):
         interface_guild = IF_Guild(interaction.guild)
@@ -202,13 +208,13 @@ class hStaff(dCommands.Cog):
             )
             return
 
-        success = await interface_guild.addChannelToType(interaction.channel.id, ctype)
+        success = await interface_guild.setChannelType(interaction.channel.id, ctype)
         if success:
             await interaction.response.send_message(f"Channel added to **{channel_type}** type.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Channel is already part of **{channel_type}** or failed to add.", ephemeral=True)
 
-    @app_commands.command(name="unset-channel", description="Remove the current channel from a channel type")
+    @staff.command(name="unset-channel", description="Remove the current channel from a channel type")
     @app_commands.describe(channel_type="Type of channel to remove (quotebook, starboard, art, silly, staff, staff-log, ignore)")
     async def unset_channel(self, interaction: discord.Interaction, channel_type: str = None):
         interface_guild = IF_Guild(interaction.guild)
@@ -226,13 +232,13 @@ class hStaff(dCommands.Cog):
             )
             return
 
-        success = await interface_guild.removeChannelFromType(interaction.channel.id, ctype)
+        success = await interface_guild.unsetChannelType(interaction.channel.id, ctype)
         if success:
             await interaction.response.send_message(f"Channel removed from **{channel_type}** type.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Channel was not part of **{channel_type}** or failed to remove.", ephemeral=True)
 
-    @app_commands.command(name="channel-info", description="Show which channel types the current channel belongs to")
+    @staff.command(name="channel-info", description="Show which channel types the current channel belongs to")
     async def channel_info(self, interaction: discord.Interaction):
         interface_guild = IF_Guild(interaction.guild)
         await interface_guild.initialize()
