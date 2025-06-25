@@ -201,14 +201,15 @@ class hStaff(dCommands.Cog):
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
-        ctype = self._get_channel_type(channel_type)
-        if ctype is None:
+        
+        if channel_type is None:
             available = self._format_available_types()
             await ctx.send(
                 f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
             )
             return
-
+        
+        ctype = self._get_channel_type(channel_type)
         success = await interface_guild.setChannelType(ctx.channel.id, ctype)
         if success:
             await ctx.send(f"Channel added to **{channel_type}** type.", ephemeral=True)
@@ -225,13 +226,15 @@ class hStaff(dCommands.Cog):
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
             return
 
-        ctype = self._get_channel_type(channel_type)
-        if ctype is None:
+        
+        if channel_type is None:
             available = self._format_available_types()
             await ctx.send(
                 f"Invalid or missing channel type.\nAvailable types are:\n{available}", ephemeral=True
             )
             return
+        
+        ctype = self._get_channel_type(channel_type)
 
         success = await interface_guild.unsetChannelType(ctx.channel.id, ctype)
         if success:
