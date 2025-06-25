@@ -95,8 +95,6 @@ class hStaff(dCommands.Cog):
                 )
 
             await STAFFLOG.send(embed=embed)
-            if flagged :
-                await STAFFLOG.send("<@&1372047838770626640>")
 
     # Pure slash command: kill
     @staff.command(name="kill", description="Shut down the bot")
