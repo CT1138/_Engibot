@@ -91,36 +91,50 @@ class hFun(dCommands.Cog):
 
         with open(image['filepath'], 'rb') as f:
             file = discord.File(f, filename=image['filepath'].split('/')[-1])
-            print(file)
             await ctx.send(file=file)
 
-    @fun.command("add-to-collection", description="Upload an image to a collection")
+    @fun.command("add-to-collection", description="Upload one or more images to a collection")
     async def add_to_collection(self, ctx: dCommands.Context, collection: str = None):
         db = IF_Database()
         await db.connect()
 
         if not collection:
             collections = db.getCollections(ctx.guild.id)
-            await ctx.send(f"Please specify a collection name. Available collections: {', '.join(collections)}")
+            await ctx.send(f"Please specify a collection name.\nAvailable collections: {', '.join(collections)}")
             return
 
         if not ctx.message.attachments:
-            await ctx.send("Please attach an image to upload.")
+            await ctx.send("Please attach at least one image.")
             return
 
-        attachment = ctx.message.attachments[0]
-        if not attachment.content_type.startswith("image/"):
-            await ctx.send("Only image files are supported.")
-            return
+        success_count = 0
+        failed_files = []
 
-        rel_path = await db.addImage(
-            attachment,
-            guild_id=ctx.guild.id,
-            author_id=ctx.author.id,
-            collection=collection
-        )
+        for attachment in ctx.message.attachments:
+            if not attachment.content_type or not attachment.content_type.startswith("image/"):
+                failed_files.append(attachment.filename)
+                continue
 
-        await ctx.send(f"Image saved in `{collection}` collection.")
+            try:
+                await db.addImage(
+                    attachment,
+                    guild_id=ctx.guild.id,
+                    author_id=ctx.author.id,
+                    collection=collection
+                )
+                success_count += 1
+            except Exception as e:
+                print(f"[Collection] Failed to save image: {e}")
+                failed_files.append(attachment.filename)
+
+        # Build response
+        messages = []
+        if success_count:
+            messages.append(f"Successfully added {success_count} image(s) to `{collection}`.")
+        if failed_files:
+            messages.append(f"Skipped unsupported or failed files: {', '.join(failed_files)}")
+
+        await ctx.send("\n".join(messages))
 
     @fun.command("add", with_app_command=True, description="Add prompts, gifs, quotes, or memories to my database")
     async def add(self, ctx: dCommands.context, key="", value=""):
