@@ -30,8 +30,6 @@ class IF_Backend:
                     "online": False,
                     "message": "Bot not ready"
                 }
-
-            total_users = len(set(self.bot.users))  # Unique users across guilds
             return {
                 "online": True,
                 "message": "Bot online and ready"
@@ -42,10 +40,10 @@ class IF_Backend:
             guild_data = []
             for guild in self.bot.guilds:
                 guild_data.append({
-                    "id": guild.id,
+                    "id": str(guild.id),
                     "name": guild.name,
                     "member_count": guild.member_count,
-                    "owner_id": guild.owner_id,
+                    "owner_id": str(guild.owner_id),
                     "icon_url": guild.icon.url if guild.icon else None
                 })
             return guild_data
