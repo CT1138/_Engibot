@@ -1,71 +1,55 @@
 body {
-  background-color: #121212;
+  background-color: #000000;
   color: #e0e0e0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 20px;
 }
 
 .container {
-  max-width: 480px;
-  margin: auto;
+    background-color: #121212;
+    margin: auto;
+    border-radius: 8px;
 }
 
-h1 {
-  color: #00bcd4;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.stat {
+#guilds {
   display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #1f1f1f;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  font-size: 1.2em;
+  flex-direction: column; 
+  gap: 2px;
 }
 
-.label {
-  font-weight: 600;
-  color: #80deea;
-}
-
-#guild-list {
+.guild {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.guild-card {
-  border: 1px solid #80deea;
+  background-color: #1e1e1e;
   border-radius: 8px;
-  padding: 1rem;
-  width: 220px;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+  padding: 10px;
+  margin: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  align-items: stretch;
+  gap: 15px;
+}
+
+.guild-icon {
+  width: 50px;
+  height:fit-content;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.guild-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: 1f1f1f;
+  justify-content: flex-start;
+  flex: 1;
 }
 
-.guild-card img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 0.75rem;
-}
-
-.guild-card .guild-name {
+.guild-name {
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 0.25rem;
-  text-align: center;
-  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #00bcd4;
 }
 
-.guild-card .member-count {
-  color: #ffffff;
-  font-size: 0.9rem;
+.guild-attr {
+  font-size: 11px;
+  color: #ccc;
+  margin-bottom: 4px;
 }
