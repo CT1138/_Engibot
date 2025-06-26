@@ -89,7 +89,10 @@ class hFun(dCommands.Cog):
         else:
             image = images[index]
 
-        await ctx.send(file=image)
+        with open(image['filepath'], 'rb') as f:
+            file = discord.File(f, filename=image['filepath'].split('/')[-1])
+            print(file)
+            await ctx.send(file=file)
 
     @fun.command("add-to-collection", description="Upload an image to a collection")
     async def add_to_collection(self, ctx: dCommands.Context, collection: str = None):
