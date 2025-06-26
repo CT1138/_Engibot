@@ -1,0 +1,33 @@
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 480px;
+  margin: auto;
+}
+
+h1 {
+  color: #00bcd4;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #1f1f1f;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  font-size: 1.2em;
+}
+
+.label {
+  font-weight: 600;
+  color: #80deea;
+}
