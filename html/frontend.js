@@ -28,7 +28,7 @@ async function loadGuilds() {
       // Guild name
       const name = document.createElement("div");
       name.className = "guild-name";
-      name.textContent = guild.name;
+      name.textContent = `${guild.name} (${guild.id})`;
       info.appendChild(name);
 
       // Member count
