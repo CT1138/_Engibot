@@ -1,9 +1,11 @@
 import os
 import discord
+import asyncio
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
 from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_database import IF_Database, SQLCommands
+from interface.interface_backend import IF_Backend
 
 # Data
 CONFIG = IF_JSON("./__data/config.json")
@@ -86,6 +88,9 @@ async def upload_quotebook_messages(bot, guild: discord.Guild, limit=100):
                 )
             except Exception as e:
                 print(f"Error uploading message {msg.id}: {e}")
+
+backend = IF_Backend(bot)
+backend.start_in_background()
 
 # RUN
 bot.run(TOKENS.json["botToken"])
