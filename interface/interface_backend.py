@@ -4,7 +4,7 @@ import uvicorn
 import threading
 import discord
 
-HOST="127.0.0.1"
+HOST="0.0.0.0"
 PORT=8000
 ACCEPTABLE_ORIGINS=["http://localhost", "http://127.0.0.1", "http://localhost:8000", "http://192.168.68.12"]
 class IF_Backend:
