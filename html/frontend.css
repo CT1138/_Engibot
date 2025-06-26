@@ -40,7 +40,7 @@ h1 {
 }
 
 .guild-card {
-  border: 1px solid #ccc;
+  border: 1px solid #80deea;
   border-radius: 8px;
   padding: 1rem;
   width: 220px;
@@ -48,7 +48,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: white;
+  background: 1f1f1f;
 }
 
 .guild-card img {
@@ -66,6 +66,6 @@ h1 {
 }
 
 .guild-card .member-count {
-  color: #555;
+  color: #ffffff;
   font-size: 0.9rem;
 }
