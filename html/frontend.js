@@ -1,52 +1,44 @@
-async function fetchStats() {
+async function loadGuilds() {
   try {
-    const response = await fetch('/stats.json');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
+    const res = await fetch("http://127.0.0.1:8000/guilds");
+    if (!res.ok) throw new Error("Network response was not ok");
 
-    document.getElementById('cpu').textContent = `${data.cpu}%`;
-    document.getElementById('memory').textContent = `${data.memory}%`;
-    document.getElementById('guilds').textContent = data.guilds;
-    document.getElementById('ip').textContent = data.ip;
-  } catch (error) {
-    console.error('Fetch error:', error);
-  }
-}
+    const guilds = await res.json();
 
-async function fetchAllGuilds() {
-  try {
-    const response = await fetch('/guilds');
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const guilds = await response.json();
+    document.getElementById("guilds").textContent = guilds.length;
 
-    // Example: log to console or update your UI
-    console.log(guilds);
-
-    // For example, render to a div
-    const container = document.getElementById('guilds-container');
-    container.innerHTML = ''; // clear previous content
+    const guildList = document.getElementById("guild-list");
+    guildList.innerHTML = "";
 
     guilds.forEach(guild => {
-      const guildDiv = document.createElement('div');
-      guildDiv.className = 'guild';
+      const card = document.createElement("div");
+      card.className = "guild-card";
 
-      guildDiv.innerHTML = `
-        <h3>${guild.name} (${guild.member_count} members)</h3>
-        <p><strong>Description:</strong> ${guild.description || 'N/A'}</p>
-        <p><strong>Owner:</strong> ${guild.owner_name}</p>
-        <img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png" alt="Icon" width="64" height="64" />
-      `;
+      // Guild icon
+      const icon = document.createElement("img");
+      icon.src = guild.icon_url || "https://via.placeholder.com/80?text=No+Icon";
+      icon.alt = `${guild.name} icon`;
+      card.appendChild(icon);
 
-      container.appendChild(guildDiv);
+      // Guild name
+      const name = document.createElement("div");
+      name.className = "guild-name";
+      name.textContent = guild.name;
+      card.appendChild(name);
+
+      // Member count
+      const members = document.createElement("div");
+      members.className = "member-count";
+      members.textContent = `${guild.member_count} members`;
+      card.appendChild(members);
+
+      guildList.appendChild(card);
     });
   } catch (error) {
-    console.error('Failed to fetch guilds:', error);
+    console.error("Failed to load guilds:", error);
+    document.getElementById("guilds").textContent = "Error";
   }
 }
 
-// Call it once page loads or whenever needed
-fetchAllGuilds();
-
-
-setInterval(fetchStats, 2000);
-fetchStats();
+loadGuilds();
+setInterval(loadGuilds, 2000);
