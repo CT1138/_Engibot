@@ -49,6 +49,7 @@ class IF_Backend:
                     "id": str(guild.id),
                     "name": guild.name,
                     "member_count": guild.member_count,
+                    "owner_name": guild.owner.name if guild.owner else "Unknown",
                     "owner_id": str(guild.owner_id),
                     "icon_url": guild.icon.url if guild.icon else None
                 })

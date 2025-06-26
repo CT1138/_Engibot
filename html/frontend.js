@@ -40,7 +40,7 @@ async function loadGuilds() {
       // Owner ID
       const owner = document.createElement("div");
       owner.className = "guild-attr";
-      owner.textContent = `Owner ID: ${guild.owner_id}`;
+      owner.textContent = `Owner: ${guild.owner_name} (${guild.owner_id})`;
       info.appendChild(owner);
 
       guildElem.appendChild(info);
