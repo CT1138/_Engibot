@@ -53,7 +53,11 @@ class IF_GPT:
             response = client.label_detection(image=image)
             labels = response.label_annotations
 
+            descriptions = [label.description for label in labels]
+            return ', '.join(descriptions)
+
             print("Labels:")
+            print(labels)
             for label in labels:
                 print(label.description)
             return labels
