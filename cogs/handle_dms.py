@@ -34,4 +34,4 @@ class hDirectMessages(dCommands.Cog):
         await message.channel.send(response)
 
 async def setup(bot):
-    await bot.add_cog((bot))
+    await bot.add_cog(hDirectMessages(bot))
