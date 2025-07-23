@@ -2,10 +2,24 @@ import discord
 from interface.interface_openai import IF_GPT
 from discord.ext import commands as dCommands
 
+MAX_MESSAGE_LENGTH = 2000
+
 class hDirectMessages(dCommands.Cog):
     def __init__(self, bot):
         self.gpt = IF_GPT()
         self.bot = bot
+
+    def split_message(self, text, max_length=MAX_MESSAGE_LENGTH):
+        chunks = []
+        while len(text) > max_length:
+            split_at = text.rfind('\n', 0, max_length) 
+            if split_at == -1:
+                split_at = max_length 
+            chunks.append(text[:split_at])
+            text = text[split_at:].lstrip('\n') 
+        if text:
+            chunks.append(text)
+        return chunks
 
     async def historyToChatStruct(self, channel, limit=100):
         messages = []
@@ -30,11 +44,11 @@ class hDirectMessages(dCommands.Cog):
         try:
             async with message.channel.typing():
                 conversation = await self.historyToChatStruct(message.channel)
-                response, input = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
+                response = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
         except Exception as e:
             response = f"Sorry, I had a problem processing your request....\n{e}"
-        await message.channel.send(input)
-        await message.channel.send(response)
+        for chunk in self.split_message(response):
+            await message.channel.send(chunk)
 
 async def setup(bot):
     await bot.add_cog(hDirectMessages(bot))

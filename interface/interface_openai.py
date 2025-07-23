@@ -26,7 +26,7 @@ class IF_GPT:
             temperature=self.temperature
             )
         print(f"output: {response.output_text}")
-        return response.output_text, input
+        return response.output_text
         
 
 class IF_MODERATOR:
