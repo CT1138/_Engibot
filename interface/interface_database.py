@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 from mariadb import Error
 from interface.interface_json import IF_JSON
+from interface.interface_ntfy import IF_NTFY
 TOKENS = IF_JSON("./__data/tokens.json").json
 
 class SQLCommands(Enum):
@@ -67,6 +68,7 @@ class IF_Database:
             return msg
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
+            IF_NTFY.post(msg)
             return msg
 
     def disconnect(self):
@@ -90,6 +92,7 @@ class IF_Database:
             self.connection.commit()
         except Error as e:
             print(f"[DB] Error executing query: {e}")
+            IF_NTFY.post(msg)
             self.connection.rollback()
 
     def fetch(self, query, params=None, all=False):
@@ -97,7 +100,9 @@ class IF_Database:
             self.cursor.execute(query, params)
             return self.cursor.fetchall() if all else self.cursor.fetchone()
         except Error as e:
-            print(f"[DB] Error fetching data: {e}")
+            msg = f"[DB] Error fetching data: {e}"
+            print(msg)
+            IF_NTFY.post(msg)
             return [] if all else None
     
     # Fetch a user's ignore flag status
