@@ -2,6 +2,7 @@ import os
 import discord
 import asyncio
 from discord.ext import commands as dCommands
+from interface.interface_ntfy import IF_NTFY
 from interface.interface_json import IF_JSON
 from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_database import IF_Database, SQLCommands
@@ -36,6 +37,8 @@ async def on_ready():
 
     # After general bot setup
     print(f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})')
+    notification = IF_NTFY()
+    notification.post(f"Engibot logged in as {bot.user} (ID: {bot.user.id})")
 
     for guild in bot.guilds:
         G = IF_Guild(guild)

@@ -1,0 +1,15 @@
+{
+    "botToken": "",
+    "perspective": "",
+    "openai": "",
+    "MySQL": {
+        "host": "",
+        "user": "",
+        "password": "",
+        "database": ""
+    },
+    "NTFY": {
+	"host": "",
+	"topic": ""
+	}
+}
