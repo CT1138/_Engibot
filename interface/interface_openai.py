@@ -56,6 +56,7 @@ class IF_GPT:
             print("Labels:")
             for label in labels:
                 print(label.description)
+            return labels
         finally:
             if os.path.exists(path):
                 os.remove(path)
