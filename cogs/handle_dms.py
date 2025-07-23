@@ -39,7 +39,10 @@ class hDirectMessages(dCommands.Cog):
 
         if not isinstance(message.channel, discord.DMChannel): return
 
-        systemPrompt = f"You are talking to: {message.author.name}, you share the following guilds: {message.author.mutual_guilds}"
+        profileDetails = self.gpt.analyze_image(message.author.avatar.url)
+        systemPrompt = f"""You are talking to: {message.author.name}, you share the following guilds: {message.author.mutual_guilds}.
+Tags describing {message.author.name}\'s avatar:
+{profileDetails}"""
 
         try:
             async with message.channel.typing():

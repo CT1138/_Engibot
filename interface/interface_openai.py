@@ -1,4 +1,7 @@
 from openai import OpenAI
+from google.cloud import vision
+import requests
+import io, os
 from interface.interface_json import IF_JSON
 from interface.interface_guild import IF_Guild
 import discord
@@ -9,6 +12,7 @@ client = OpenAI(api_key=TOKENS["openai"])
 modModel = "omni-moderation-latest"
 with open("./__data/aiPrompt.txt", "r", encoding="utf-8") as file:
     basePrompt = file.read()
+
 
 class IF_GPT:
     def __init__(self, model="gpt-4o", temperature=0.2, systemPrompt=""):
@@ -27,6 +31,33 @@ class IF_GPT:
             )
         print(f"output: {response.output_text}")
         return response.output_text
+    
+    def download_image(self, url, save_path):
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(save_path, 'wb') as f:
+                f.write(response.content)
+        else:
+            raise Exception("Failed to download image.")
+    
+    def analyze_image(self, image_url):
+        try:
+            client = vision.ImageAnnotatorClient()
+            path = "/tmp/readimg.png"
+            self.download_image(image_url, path)
+            with io.open(path, 'rb') as image_file:
+                content = image_file.read()
+
+            image = vision.Image(content=content)
+            response = client.label_detection(image=image)
+            labels = response.label_annotations
+
+            print("Labels:")
+            for label in labels:
+                print(label.description)
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
         
 
 class IF_MODERATOR:
