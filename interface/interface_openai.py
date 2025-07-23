@@ -17,8 +17,9 @@ class IF_GPT:
         self.systemPrompt=systemPrompt + "\n" + basePrompt
 
     def chat(self, input, additionalprompt=""):
-        input.insert(0, basePrompt)
-        input.insert(1, additionalprompt)
+        input.insert(0, {"role": "system", "content": additionalprompt})
+        input.insert(0, {"role": "system", "content": basePrompt})
+        print(input)
         response = client.responses.create(
             model=self.model,
             input=input,
