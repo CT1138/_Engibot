@@ -17,7 +17,7 @@ class hDirectMessages(dCommands.Cog):
             messages.append({"role": role, "content": message.content})
         return messages
 
-    @dCommands.Cog.listener
+    @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user: return
         if not message.author.id == 752989978535002134: return
