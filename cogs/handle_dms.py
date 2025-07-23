@@ -23,9 +23,11 @@ class hDirectMessages(dCommands.Cog):
         if not message.author.id == 752989978535002134: return
         if message.author.bot: return
 
+        systemPrompt = f"You are talking to: {message.author.name}, you share the following guilds: {message.author.mutual_guilds}"
+
         try:
             conversation = self.historyToChatStruct(message.channel)
-            response = self.gpt.chat(input=conversation)
+            response = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
         except Exception as e:
             response = f"Sorry, I had a problem processing your request....\n{e}"
         

@@ -16,8 +16,9 @@ class IF_GPT:
         self.temperature=temperature
         self.systemPrompt=systemPrompt + "\n" + basePrompt
 
-    def chat(self, input):
+    def chat(self, input, additionalprompt=""):
         input.insert(0, basePrompt)
+        input.insert(1, additionalprompt)
         response = client.responses.create(
             model=self.model,
             input=input,
