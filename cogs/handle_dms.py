@@ -30,10 +30,10 @@ class hDirectMessages(dCommands.Cog):
         try:
             async with message.channel.typing():
                 conversation = await self.historyToChatStruct(message.channel)
-                response = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
+                response, input = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
         except Exception as e:
             response = f"Sorry, I had a problem processing your request....\n{e}"
-        
+        await message.channel.send(input)
         await message.channel.send(response)
 
 async def setup(bot):
