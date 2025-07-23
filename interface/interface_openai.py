@@ -41,9 +41,9 @@ class IF_GPT:
             raise Exception("Failed to download image.")
     
     def analyze_image(self, image_url):
+        path = "/tmp/readimg.png"
         try:
             client = vision.ImageAnnotatorClient()
-            path = "/tmp/readimg.png"
             self.download_image(image_url, path)
             with io.open(path, 'rb') as image_file:
                 content = image_file.read()
