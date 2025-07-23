@@ -19,6 +19,7 @@ class hListener(dCommands.Cog):
 
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if not message.guild: return
         GUILD = IF_Guild(message.channel.guild)
         await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)

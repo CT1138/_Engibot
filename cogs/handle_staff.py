@@ -48,6 +48,7 @@ class hStaff(dCommands.Cog):
     # Content Filter
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if not message.guild: return
         # Initialize guild
         GUILD = IF_Guild(message.guild)
         await GUILD.initialize()
