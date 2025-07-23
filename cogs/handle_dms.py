@@ -26,7 +26,7 @@ class hDirectMessages(dCommands.Cog):
         systemPrompt = f"You are talking to: {message.author.name}, you share the following guilds: {message.author.mutual_guilds}"
 
         try:
-            conversation = self.historyToChatStruct(message.channel)
+            conversation = await self.historyToChatStruct(message.channel)
             response = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
         except Exception as e:
             response = f"Sorry, I had a problem processing your request....\n{e}"
