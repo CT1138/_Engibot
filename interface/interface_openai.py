@@ -19,12 +19,13 @@ class IF_GPT:
     def chat(self, input, additionalprompt=""):
         input.insert(0, {"role": "system", "content": additionalprompt})
         input.insert(0, {"role": "system", "content": basePrompt})
-        print(input)
+        print(f"input: {input}")
         response = client.responses.create(
             model=self.model,
             input=input,
             temperature=self.temperature
             )
+        print(f"output: {response.output_text}")
         return response.output_text
         
 
