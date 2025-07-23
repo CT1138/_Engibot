@@ -9,7 +9,7 @@ import discord
 TOKENS = IF_JSON("./__data/tokens.json").json
 client = OpenAI(api_key=TOKENS["openai"])
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "~./_Engibot/__data/google-api.key.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/tyler/_Engibot/__data/google-api.key.json"
 modModel = "omni-moderation-latest"
 with open("./__data/aiPrompt.txt", "r", encoding="utf-8") as file:
     basePrompt = file.read()
