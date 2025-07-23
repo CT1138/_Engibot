@@ -5,7 +5,7 @@ from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_database import IF_Database, SQLCommands
 from interface.interface_response import IF_Response
 from interface.interface_json import IF_JSON
-from aimoderator import AIChatbot
+from interface.interface_openai import AIChatbot
 
 CONFIG = IF_JSON("./__data/config.json")
 # VARIABLES

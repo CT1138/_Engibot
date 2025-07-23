@@ -2,7 +2,7 @@ import os
 import sys
 import discord
 import datetime
-import aimoderator
+import interface.interface_openai as interface_openai
 import traceback
 from interface.interface_guild import IF_Guild, ChannelType, TYPEMAPPING
 from discord import utils as dUtils, File, app_commands
@@ -60,7 +60,7 @@ class hStaff(dCommands.Cog):
         if GUILD.isStaff(message.author.id) : return
         # If the AI flags a message - We trust this less so it will only log the incident, action will not be taken.
 
-        moderator = aimoderator.AIModerator(message.guild)
+        moderator = interface_openai.IF_MODERATOR(message.guild)
         await moderator.initialize()
         await moderator.GUILD.initialize()
         flagged, aiflagged, response = moderator.scanText(message.content)

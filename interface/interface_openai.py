@@ -7,8 +7,26 @@ TOKENS = IF_JSON("./__data/tokens.json").json
 client = OpenAI(api_key=TOKENS["openai"])
 
 modModel = "omni-moderation-latest"
+with open("./__data/aiPrompt.txt", "r", encoding="utf-8") as file:
+    basePrompt = file.read()
 
-class AIModerator:
+class IF_GPT:
+    def __init__(self, model="gpt-4o", temperature=0.2, systemPrompt=""):
+        self.model=model
+        self.temperature=temperature
+        self.systemPrompt=systemPrompt + "\n" + basePrompt
+
+    def chat(self, input):
+        input.insert(0, basePrompt)
+        response = client.responses.create(
+            model=self.model,
+            input=input,
+            temperature=self.temperature
+            )
+        return response.output_text
+        
+
+class IF_MODERATOR:
     def __init__(self, guild: discord.Guild):
         self.GUILD = IF_Guild(guild)
         self.categories_to_flag = []
