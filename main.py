@@ -36,9 +36,10 @@ async def on_ready():
         print(f"[COG] Sync failed: {e}")
 
     # After general bot setup
-    print(f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})')
+    login_message = f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})'
+    print(login_message)
     notification = IF_NTFY()
-    notification.post(f"Engibot logged in as {bot.user} (ID: {bot.user.id})")
+    notification.post(msg=login_message)
 
     for guild in bot.guilds:
         G = IF_Guild(guild)
