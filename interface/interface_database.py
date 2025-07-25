@@ -101,7 +101,8 @@ class IF_Database:
             self.cursor.execute(query, params)
             self.connection.commit()
         except Error as e:
-            print(f"[DB] Error executing query: {e}")
+            msg = f"[DB] Error executing query: {e}"
+            print(msg)
             IF_NTFY.post(msg)
             self.connection.rollback()
 
