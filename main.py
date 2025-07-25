@@ -94,6 +94,8 @@ async def upload_quotebook_messages(bot, guild: discord.Guild, limit=100):
 backend = IF_Backend(bot)
 backend.start_in_background()
 
+
+
 # RUN
 TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN: raise ValueError
