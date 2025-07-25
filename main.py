@@ -1,16 +1,14 @@
 import os
 import discord
-import asyncio
 from discord.ext import commands as dCommands
 from interface.interface_ntfy import IF_NTFY
 from interface.interface_json import IF_JSON
 from interface.interface_guild import IF_Guild, ChannelType
-from interface.interface_database import IF_Database, SQLCommands
+from interface.interface_database import SQLCommands
 from interface.interface_backend import IF_Backend
 
 # Data
 CONFIG = IF_JSON("./__data/config.json")
-TOKENS = IF_JSON("./__data/tokens.json")
 
 # VARIABLES
 PREFIX = "-"
@@ -97,4 +95,6 @@ backend = IF_Backend(bot)
 backend.start_in_background()
 
 # RUN
-bot.run(TOKENS.json["botToken"])
+TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN: raise ValueError
+bot.run(TOKEN)

@@ -47,11 +47,21 @@ class SQLCommands(Enum):
 
 class IF_Database:
     def __init__(self):
+        # Get Host & DB Data
+        MARIADB_HOSTDB = os.getenv("MARIADB_HOSTDB")
+        if not MARIADB_HOSTDB: raise ValueError
+        HOST, DATABASE = MARIADB_HOSTDB.split('|', 1)
+
+        # Get User Login
+        MARIADB_USER = os.getenv("MARIADB_USER")
+        if not MARIADB_USER: raise ValueError
+        USER, PASSWORD = MARIADB_USER.split('|', 1)
+
         self.config = {
-            'host': TOKENS["MySQL"]["host"],
-            'user': TOKENS["MySQL"]["user"],
-            'password': TOKENS["MySQL"]["password"],
-            'database': TOKENS["MySQL"]["database"]
+            'host': HOST,
+            'user': USER,
+            'password': PASSWORD,
+            'database': DATABASE
         }
         self.connection = None
         self.cursor = None

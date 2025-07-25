@@ -6,8 +6,7 @@ from interface.interface_json import IF_JSON
 from interface.interface_guild import IF_Guild
 import discord
 
-TOKENS = IF_JSON("./__data/tokens.json").json
-client = OpenAI(api_key=TOKENS["openai"])
+client = OpenAI()
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/tyler/_Engibot/__data/google-api.key.json"
 modModel = "omni-moderation-latest"
@@ -55,12 +54,7 @@ class IF_GPT:
 
             descriptions = [label.description for label in labels]
             return ', '.join(descriptions)
-
-            print("Labels:")
-            print(labels)
-            for label in labels:
-                print(label.description)
-            return labels
+        
         finally:
             if os.path.exists(path):
                 os.remove(path)

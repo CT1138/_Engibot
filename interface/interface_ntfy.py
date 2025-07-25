@@ -1,12 +1,13 @@
-from interface.interface_json import IF_JSON
-import requests
-TOKENS = IF_JSON("./__data/tokens.json").json
+import requests, os
+
+# host|topic
+URL = os.getenv("NTFY")
+HOST, TOPIC = URL.split('|', 1)
 
 class IF_NTFY:
     @staticmethod
     def post(msg: str):
-        host = TOKENS["NTFY"]["host"]
-        topic = TOKENS["NTFY"]["topic"]
-        url = f"http://{host}/{topic}"
+        if not URL: return
+        url = f"http://{HOST}/{TOPIC}"
         print(f"[NTFY] Posted \"{msg}\" to listeners")
         requests.post(url, data=msg)
