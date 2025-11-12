@@ -3,7 +3,6 @@ import os
 import sys
 from datetime import datetime
 from mariadb import Error
-from interface.interface_ntfy import IF_NTFY
 from sql.SQLCommands import SQLCommands
 
 class IF_Database:
@@ -40,7 +39,6 @@ class IF_Database:
             return True
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
-            IF_NTFY.post(msg)
             sys.exit(e)
             return True
 
@@ -66,7 +64,6 @@ class IF_Database:
         except Error as e:
             msg = f"[DB] Error executing query: {e}"
             print(msg)
-            IF_NTFY.post(msg)
             self.connection.rollback()
 
     def fetch(self, query, params=None, all=False):
@@ -76,7 +73,6 @@ class IF_Database:
         except Error as e:
             msg = f"[DB] Error fetching data: {e}"
             print(msg)
-            IF_NTFY.post(msg)
             return [] if all else None
     
     # Fetch a user's ignore flag status

@@ -1,14 +1,10 @@
 import discord
 from discord.ext import commands as dCommands
-from interface.interface_ntfy import IF_NTFY
 
 
 class hAudit(dCommands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    async def notify(self, message: str):
-        IF_NTFY.post(message)
 
     @dCommands.Cog.listener()
     async def on_member_ban(self, guild, user):

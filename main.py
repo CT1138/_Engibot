@@ -2,7 +2,6 @@
 import os, discord
 from discord.ext import commands
 from interface.interface_database import IF_Database
-from interface.interface_ntfy import IF_NTFY
 from interface.interface_backend import IF_Backend
 
 # Setup Bot
@@ -28,9 +27,6 @@ async def on_ready():
     # After general bot setup
     login_message = f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})'
     print(login_message)
-    notification = IF_NTFY()
-    notification.post(msg=login_message)
-
     # Attempt Database Connection
     db = IF_Database()
     if await db.connect(): print("[BOT] First time connection to database, success.")
