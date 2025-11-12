@@ -50,15 +50,6 @@ class hFun(dCommands.Cog):
         await ctx.message.channel.send(URL)
         await ctx.defer()
 
-    @fun.command("quotebook", with_app_command=True, description="Get a random quote from the book of quotes")
-    async def quotebook(self, ctx: dCommands.Context):
-        quote = await self.response.getRandom(key=ctx.guild.name, result_type=ResultType.QUOTEBOOK)
-        if quote:
-            await ctx.send(quote)
-        else:
-            await ctx.send("No quotes found! Better get to work!")
-        await ctx.defer()
-
     @fun.command("memory", with_app_command=True, description="Get a random memory")
     async def memory(self, ctx: dCommands.Context):
         memory = await self.response.getRandom(key=ctx.guild.name, result_type=ResultType.MEMORY)

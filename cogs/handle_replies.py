@@ -2,14 +2,7 @@ import discord
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_response import IF_Response, ResultType
-from interface.interface_json import IF_JSON
 import util.utils_math as uMath
-
-
-CONFIG = IF_JSON("./__data/config.json")
-# VARIABLES
-STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
-STATUS = CONFIG.json["status"]
 
 class hReplies(dCommands.Cog):
     def __init__(self, bot):

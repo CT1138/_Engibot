@@ -3,19 +3,13 @@ import sys
 import discord
 import datetime
 import interface.interface_openai as interface_openai
-import traceback
 from interface.interface_guild import IF_Guild, ChannelType, TYPEMAPPING
-from discord import utils as dUtils, File, app_commands
+from discord import app_commands
 from discord.ext import commands as dCommands
 from interface.interface_json import IF_JSON
-from interface.interface_database import IF_Database, SQLCommands
+from sql.SQLCommands import SQLCommands
+from interface.interface_database import IF_Database
 from interface.interface_response import IF_Response, ResultType
-
-# Read Configs
-CONFIG = IF_JSON("./__data/config.json")
-# VARIABLES
-STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
-STATUS = CONFIG.json["status"]
 
 class hStaff(dCommands.Cog):
     def __init__(self, bot):

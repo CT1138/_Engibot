@@ -1,10 +1,8 @@
-import os
-import shutil
 import discord
 from enum import Enum
 import json
-from interface.interface_json import IF_JSON
-from interface.interface_database import IF_Database, SQLCommands
+from sql.SQLCommands import SQLCommands
+from interface.interface_database import IF_Database
 
 class ChannelType(Enum):
     STARBOARD = 0,
@@ -62,10 +60,7 @@ class IF_Guild:
 
         # Init DB
         self.db = IF_Database()
-        msg = await self.db.connect()
-        if "Error" in msg:
-            print(msg)
-            return
+        await self.db.connect()
         # Load Config from DB
         self.Config = await self.loadConfig()
         await self._sync_dbconfig()

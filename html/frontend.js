@@ -1,6 +1,6 @@
 async function loadGuilds() {
   try {
-    const res = await fetch("http://127.0.0.1:8000/guilds");
+    const res = await fetch("http://127.0.0.1:6934/guilds");
     if (!res.ok) throw new Error("Network response was not ok");
 
     const guilds = await res.json();

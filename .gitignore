@@ -1,11 +1,11 @@
-__data/tokens.json
-__data/starboard_cache.json
-__data/guild/*
-!__data/guild/g_template.json
-!__data/guild/cache/c_template.json
-*__pycache__/
 *.pyc
 *.png
 *.gif
 *.env
+
+__data/tokens.json
+__data/starboard_cache.json
+__data/guild/*
+!__data/guild/template.env
+*__pycache__/
 html/.txt

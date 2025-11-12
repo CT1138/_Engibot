@@ -2,15 +2,11 @@ import discord
 import re
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
-from interface.interface_database import IF_Database, SQLCommands
+from sql.SQLCommands import SQLCommands
+from interface.interface_database import IF_Database
 from interface.interface_response import IF_Response
 from interface.interface_json import IF_JSON
 from interface.interface_openai import AIChatbot
-
-CONFIG = IF_JSON("./__data/config.json")
-# VARIABLES
-STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
-STATUS = CONFIG.json["status"]
 
 class hListener(dCommands.Cog):
     def __init__(self, bot):
@@ -47,7 +43,6 @@ class hListener(dCommands.Cog):
         if message.attachments:
             if CHANNELTYPE == ChannelType.ART:
                 await message.add_reaction("<:happi:1355706814083371199>")
-                await message.add_reaction(STARBOARD_EMOJI)
 
         url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
         if url_pattern.search(message.content) and GUILD.Config["scrapegifs"]:

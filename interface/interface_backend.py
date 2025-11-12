@@ -1,11 +1,12 @@
+import uvicorn, threading, discord, os, dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import threading
 import discord
 
-HOST="0.0.0.0"
-PORT=8000
+HOST=os.getenv("BACKEND_HOST")
+PORT=int(os.getenv("BACKEND_PORT"))
 ACCEPTABLE_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
@@ -13,6 +14,7 @@ ACCEPTABLE_ORIGINS = [
     "http://localhost:8080",
     "http://192.168.68.12"
 ]
+
 class IF_Backend:
     def __init__(self, bot: discord.Client):
         self.bot = bot

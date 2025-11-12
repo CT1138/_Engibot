@@ -1,5 +1,6 @@
 import random
-from interface.interface_database import IF_Database, SQLCommands
+from sql.SQLCommands import SQLCommands
+from interface.interface_database import IF_Database
 from util import utils_string as uString
 from enum import Enum
 

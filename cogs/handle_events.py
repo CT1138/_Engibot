@@ -1,4 +1,4 @@
-import discord
+import discord, dotenv, os
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
 from interface.interface_json import IF_JSON
@@ -6,10 +6,8 @@ import interface.interface_response as uResponse
 import util.utils_math as uMath
 from interface.interface_guild import IF_Guild
 
-CONFIG = IF_JSON("./__data/config.json")
 # VARIABLES
-STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
-STATUS = CONFIG.json["status"]
+STATUS = os.getenv("BOT_STATUS")
 
 class hEvent(dCommands.Cog):
     def __init__(self, bot):

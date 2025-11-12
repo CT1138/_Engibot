@@ -1,8 +1,8 @@
-import discord
+import discord, dotenv, os
 from interface.interface_openai import IF_GPT
 from discord.ext import commands as dCommands
 
-MAX_MESSAGE_LENGTH = 2000
+MAX_MESSAGE_LENGTH = os.getenv("MAX_MESSAGE_LENGTH")
 
 class hDirectMessages(dCommands.Cog):
     def __init__(self, bot):
@@ -39,7 +39,6 @@ class hDirectMessages(dCommands.Cog):
 
         if not isinstance(message.channel, discord.DMChannel): return
 
-        profileDetails = self.gpt.analyze_image(message.author.avatar.url)
         systemPrompt = f"You are talking to: {message.author.name}, you share the following guilds: {message.author.mutual_guilds}."
 
         try:
