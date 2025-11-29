@@ -5,8 +5,8 @@ from interface.interface_database import IF_Database
 
 # Setup Bot
 intents = discord.Intents.all()
-prefix = os.getenv("BOT_PREFIX")
-status = os.getenv("BOT_STATUS")
+prefix = os.getenv("BOT_PREFIX") or "!"
+status = os.getenv("BOT_STATUS") or "Goon or be Gooned"
 bot = commands.Bot(command_prefix=prefix, intents=intents)
 
 # EVENTS

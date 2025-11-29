@@ -26,7 +26,7 @@ class hQuotebook(commands.Cog):
         interface_guild = IF_Guild(guild)
         await interface_guild.initialize()
 
-        quotebook_channel = await interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
+        quotebook_channel = interface_guild.getChannelByType(ChannelType.QUOTEBOOK)
         if quotebook_channel is None:
             print("Quotebook channel not found")
             return
