@@ -2,7 +2,6 @@
 import os, discord
 from discord.ext import commands
 from interface.interface_database import IF_Database
-from interface.interface_backend import IF_Backend
 
 # Setup Bot
 intents = discord.Intents.all()
@@ -37,9 +36,6 @@ async def on_ready():
         status=discord.Status.idle,
         activity=discord.Activity(type=discord.ActivityType.listening, name=status)
     )
-
-backend = IF_Backend(bot)
-backend.start_in_background()
 
 # RUN
 token = os.getenv("DISCORD_TOKEN")
