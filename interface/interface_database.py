@@ -21,7 +21,9 @@ class IF_Database:
             'host': HOST,
             'user': USER,
             'password': PASSWORD,
-            'database': DATABASE
+            'database': DATABASE,
+            "unix_socket": None,
+            'port': 3306
         }
         self.connection = None
         self.cursor = None
