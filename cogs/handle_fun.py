@@ -128,17 +128,18 @@ class hFun(dCommands.Cog):
         await ctx.send("\n".join(messages))
 
     @fun.command("add", with_app_command=True, description="Add prompts, gifs, quotes, or memories to my database")
-    async def add(self, ctx: dCommands.context, key="", value=""):
+    async def add(self, ctx: dCommands.context, key="", *, value=""):
         STRING = uString.shorten_string(value, 2000)
         RESPONSE = await self.response.getRandom("finishAdd", result_type=ResultType.RESPONSE)
         DATABASEKEY = "random"
 
         if not key or not value:
-            await ctx.reply("Please provide both a key and a value to add... valied keys: response, gif, memory, quotebook")
+            await ctx.reply("Please provide both a key and a value to add... \nvalid keys: response, url (gif), memory, quotebook\n```!fun add response This is a new response!```\n```!fun add url https://example.com/mygif.gif```")
             return
 
         # Validate ResultType
-        key_lower = key.lower()  # normalize input
+        if key == "gif": key = "url"
+        key_lower = key.lower()
         if key_lower in [item.value for item in ResultType]:
             result_type = ResultType(key_lower)
         else:

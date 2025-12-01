@@ -33,7 +33,7 @@ class hQuotebook(commands.Cog):
 
         print(f"Found quotebook channel: {quotebook_channel.name}")
 
-        messages = await quotebook_channel.history(limit).flatten()
+        messages = [msg async for msg in quotebook_channel.history(limit=10)]
 
         for msg in messages:
             image_url = None

@@ -1,11 +1,11 @@
 import discord
 import re
+import util.utils_math as uMath
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
 from sql.SQLCommands import SQLCommands
 from interface.interface_database import IF_Database
-from interface.interface_response import IF_Response
-from interface.interface_json import IF_JSON
+from interface.interface_response import IF_Response, ResultType
 from interface.interface_openai import AIChatbot
 
 class hListener(dCommands.Cog):
@@ -44,10 +44,16 @@ class hListener(dCommands.Cog):
             if CHANNELTYPE == ChannelType.ART:
                 await message.add_reaction("<:happi:1355706814083371199>")
 
+        if uMath.roll(100 - 2, "lol"):
+            await message.add_reaction("🫃")
+
+        if uMath.roll(100 - 1, "kirked"):
+            await message.channel.send("We are charlie kirks!")
+
         url_pattern = re.compile(r"https?://(?:www\.)?tenor\.com[^\s]*")
         if url_pattern.search(message.content) and GUILD.Config["scrapegifs"]:
             link = re.findall(url_pattern, message.content)[0]
-            await self.RESPONSE.add("random", link, result_type=IF_Response.ResultType.URL)
+            await self.RESPONSE.add("random", link, result_type=ResultType.URL)
             print(f"[RESPONSE] scalped and found gif {link}")
 
         if GUILD.Config["chatcompletions"]:

@@ -6,6 +6,7 @@ from enum import Enum
 
 class ResultType(Enum):
     RESPONSE = "response"
+    GIF = "gif"
     URL = "url"
     MEMORY = "memory"
     QUOTEBOOK = "quotebook"
