@@ -138,12 +138,14 @@ class hFun(dCommands.Cog):
             return
 
         # Validate ResultType
-        try:
-            result_type = ResultType[key.upper()]
-        except KeyError:
-            await ctx.reply("Invalid type. Choose from: response, gif, memory, quotebook")
+        key_lower = key.lower()  # normalize input
+        if key_lower in [item.value for item in ResultType]:
+            result_type = ResultType(key_lower)
+        else:
+            valid_types = ", ".join([item.value for item in ResultType])
+            await ctx.reply(f"Invalid type. Choose from: {valid_types}")
             return
-
+        
         # Validate content
         if not value:
             await ctx.reply("Please provide a value to add.")

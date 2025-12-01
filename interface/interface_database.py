@@ -7,15 +7,13 @@ from sql.SQLCommands import SQLCommands
 
 class IF_Database:
     def __init__(self):
-        # Get Host & DB Data
-        MARIADB_HOSTDB = os.getenv("MARIADB_HOSTDB")
-        if not MARIADB_HOSTDB: raise ValueError
-        HOST, DATABASE = MARIADB_HOSTDB.split('|', 1)
-
-        # Get User Login
-        MARIADB_USER = os.getenv("MARIADB_USER")
-        if not MARIADB_USER: raise ValueError
-        USER, PASSWORD = MARIADB_USER.split('|', 1)
+        print("[DB] Initializing MariaDB connection...")
+        HOST = os.getenv("MARIADB_HOST", "localhost")
+        USER = os.getenv("MARIADB_USERNAME", "engibot")
+        PORT = int(os.getenv("MARIADB_PORT", 3306))
+        PASSWORD=os.getenv("MARIADB_PASSWORD", "password")
+        DATABASE=os.getenv("MARIADB_DATABASE", "engibot")
+        print(f"[DB] Connecting to MariaDB at {HOST}:{PORT}, Database: {DATABASE}, User: {USER}")
 
         self.config = {
             'host': HOST,
@@ -23,7 +21,7 @@ class IF_Database:
             'password': PASSWORD,
             'database': DATABASE,
             "unix_socket": None,
-            'port': 3306
+            'port': PORT
         }
         self.connection = None
         self.cursor = None
