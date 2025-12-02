@@ -1,0 +1,24 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: engibot
+    ports:
+      - "6934:6934"
+    volumes:
+      - .:/app
+    env_file:
+      - ./__data/engibot.env
+  db:
+    image: mariadb:11
+    container_name: engibot_db
+    env_file:
+      - ./__data/mariadb.env
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3310:3306"
+
+volumes:
+  mariadb_data:

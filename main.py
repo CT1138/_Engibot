@@ -1,21 +1,13 @@
-import os
-import discord
-from discord.ext import commands as dCommands
-from interface.interface_json import IF_JSON
-from interface.interface_guild import IF_Guild
-
-# Data
-CONFIG = IF_JSON("./__data/config.json")
-TOKENS = IF_JSON("./__data/tokens.json")
-
-# VARIABLES
-PREFIX = "-"
-STATUS = CONFIG.json["status"]
+#!/usr/bin/env python3
+import os, discord
+from discord.ext import commands
+from interface.interface_database import IF_Database
 
 # Setup Bot
-MYINTENTS = discord.Intents.all()
-MYINTENTS.reactions = True
-bot = dCommands.Bot(command_prefix=PREFIX, intents=MYINTENTS)
+intents = discord.Intents.all()
+prefix = os.getenv("BOT_PREFIX") or "!"
+status = os.getenv("BOT_STATUS") or "Goon or be Gooned"
+bot = commands.Bot(command_prefix=prefix, intents=intents)
 
 # EVENTS
 @bot.event
@@ -32,17 +24,20 @@ async def on_ready():
         print(f"[COG] Sync failed: {e}")
 
     # After general bot setup
-    print(f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})')
-
-    for guild in bot.guilds:
-        G = IF_Guild(guild)
-        await G.initialize()
+    login_message = f'[BOT] Logged in as {bot.user} (ID: {bot.user.id})'
+    print(login_message)
+    # Attempt Database Connection
+    db = IF_Database()
+    if await db.connect(): print("[BOT] First time connection to database, success.")
+    else: print("[BOT] Couldn't connect to Database!")
     
     # TODO: Add cycling status option (eg chance every 30 minutes or hour)
     await bot.change_presence(
         status=discord.Status.idle,
-        activity=discord.Activity(type=discord.ActivityType.listening, name=STATUS)
+        activity=discord.Activity(type=discord.ActivityType.listening, name=status)
     )
 
 # RUN
-bot.run(TOKENS.json["botToken"])
+token = os.getenv("DISCORD_TOKEN")
+if not token: raise ValueError
+bot.run(token)

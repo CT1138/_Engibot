@@ -1,15 +1,8 @@
 import discord
 from discord.ext import commands as dCommands
 from interface.interface_guild import IF_Guild, ChannelType
-from interface.interface_response import IF_Response
-from interface.interface_json import IF_JSON
+from interface.interface_response import IF_Response, ResultType
 import util.utils_math as uMath
-
-
-CONFIG = IF_JSON("./__data/config.json")
-# VARIABLES
-STARBOARD_EMOJI = CONFIG.json["emojis"]["starboard"]
-STATUS = CONFIG.json["status"]
 
 class hReplies(dCommands.Cog):
     def __init__(self, bot):
@@ -18,6 +11,7 @@ class hReplies(dCommands.Cog):
 
     @dCommands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        if not message.guild: return
         GUILD = IF_Guild(message.channel.guild)
         await GUILD.initialize()
         CHANNELTYPE = GUILD.getChannelType(message.channel.id)
@@ -28,7 +22,9 @@ class hReplies(dCommands.Cog):
         
         if not CHANNELTYPE == ChannelType.SILLY : return
 
-        RESPONSE, URL = await self.response.getRandom("random")
+        RESPONSE = await self.response.getRandom("random" , result_type=ResultType.RESPONSE)
+        URL = await self.response.getRandom("random", result_type=ResultType.URL)
+        
         CHANCE = GUILD.getChance("Response")
 
         if uMath.roll(CHANCE, "Response"):

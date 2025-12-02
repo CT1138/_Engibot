@@ -1,50 +1,27 @@
-# Functionally empty for now until I get my raspberry pi setup with mariadb
-# TODO: Write interface
-# TODO: As interface is implemented, write specialized getters and setters for common operations
 import mariadb
-from enum import Enum
+import os
+import sys
+from datetime import datetime
 from mariadb import Error
-from interface.interface_json import IF_JSON
-TOKENS = IF_JSON("./__data/tokens.json").json
-
-class SQLCommands(Enum):
-    GET_RESPONSES = "SELECT * FROM responses WHERE `key` = %s"
-    GET_GIFS = "SELECT * FROM urls WHERE `key` = %s"
-    INSERT_RESPONSE = "INSERT INTO responses (`key`, content) VALUES (%s, %s)"
-    INSERT_GIF = "INSERT INTO urls (`key`, content) VALUES (%s, %s)"
-    GET_GUILD_CONFIG = "SELECT * FROM guild_config WHERE id = %s"
-    INSERT_GUILD_CONFIG = """
-        INSERT INTO guild_config (
-            id, name, command_prefix, embed_color, moderation, scrapegifs, chatcompletions,
-            sensitive_content, chances, channels, roles, members
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    UPDATE_GUILD_CONFIG = "UPDATE guild_config SET {} WHERE id = %s"
-    DELETE_GUILD_CONFIG = "DELETE FROM guild_config WHERE id = %s"
-    GET_USER_FLAG = "SELECT ignore_flag FROM guild_user_flags WHERE guild_id = %s AND user_id = %s"
-    SET_USER_FLAG = """
-        INSERT INTO guild_user_flags (guild_id, user_id, ignore_flag)
-        VALUES (%s, %s, %s)
-        ON DUPLICATE KEY UPDATE ignore_flag = VALUES(ignore_flag)
-    """
-    DELETE_USER_FLAG = "DELETE FROM guild_user_flags WHERE guild_id = %s AND user_id = %s"
-    GET_ALL_IGNORED_USERS = "SELECT user_id FROM guild_user_flags WHERE guild_id = %s AND ignore_flag = 1"
-    INSERT_MESSAGE = """
-        INSERT INTO message_log (
-            message_id, guild_id, guild_name, channel_id, channel_name,
-            author_id, author_name, content, created_at
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE content = VALUES(content)
-    """
-
+from sql.SQLCommands import SQLCommands
 
 class IF_Database:
     def __init__(self):
+        print("[DB] Initializing MariaDB connection...")
+        HOST = os.getenv("MARIADB_HOST", "localhost")
+        USER = os.getenv("MARIADB_USERNAME", "engibot")
+        PORT = int(os.getenv("MARIADB_PORT", 3306))
+        PASSWORD=os.getenv("MARIADB_PASSWORD", "password")
+        DATABASE=os.getenv("MARIADB_DATABASE", "engibot")
+        print(f"[DB] Connecting to MariaDB at {HOST}:{PORT}, Database: {DATABASE}, User: {USER}")
+
         self.config = {
-            'host': TOKENS["MySQL"]["host"],
-            'user': TOKENS["MySQL"]["user"],
-            'password': TOKENS["MySQL"]["password"],
-            'database': TOKENS["MySQL"]["database"]
+            'host': HOST,
+            'user': USER,
+            'password': PASSWORD,
+            'database': DATABASE,
+            "unix_socket": None,
+            'port': PORT
         }
         self.connection = None
         self.cursor = None
@@ -58,10 +35,12 @@ class IF_Database:
             self.cursor.execute("SET character_set_connection=utf8mb4;")
 
             msg = "[DB] Successfully connected to MariaDB."
-            return msg
+            print()
+            return True
         except Error as e:
             msg = f"[DB] Error connecting to MariaDB: {e}"
-            return msg
+            sys.exit(e)
+            return True
 
     def disconnect(self):
         try:
@@ -83,7 +62,8 @@ class IF_Database:
             self.cursor.execute(query, params)
             self.connection.commit()
         except Error as e:
-            print(f"[DB] Error executing query: {e}")
+            msg = f"[DB] Error executing query: {e}"
+            print(msg)
             self.connection.rollback()
 
     def fetch(self, query, params=None, all=False):
@@ -91,7 +71,8 @@ class IF_Database:
             self.cursor.execute(query, params)
             return self.cursor.fetchall() if all else self.cursor.fetchone()
         except Error as e:
-            print(f"[DB] Error fetching data: {e}")
+            msg = f"[DB] Error fetching data: {e}"
+            print(msg)
             return [] if all else None
     
     # Fetch a user's ignore flag status
@@ -113,6 +94,33 @@ class IF_Database:
     def getIgnoredUsers(self, guild_id: int) -> list[int]:
         rows = self.fetch(SQLCommands.GET_ALL_IGNORED_USERS.value, (guild_id,), all=True)
         return [row["user_id"] for row in rows] if rows else []
+    
+    async def addImage(self, attachment, guild_id: int, author_id: int, collection: str, path="/srv/engibot/images") -> str:
+        guild_folder = os.path.join(path, str(guild_id), collection)
+        os.makedirs(guild_folder, exist_ok=True)
+
+        # Save with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"collection_{author_id}_{timestamp}_{attachment.filename.lower()}"
+        full_path = os.path.join(guild_folder, filename)
+
+        # Save the image
+        await attachment.save(full_path)
+
+        # Store relative path
+        rel_path = os.path.relpath(full_path)
+
+        # Insert into database
+        self.query(SQLCommands.INSERT_IMAGE.value, (guild_id, author_id, collection, rel_path))
+
+        return rel_path
+
+    def getImagesByCollection(self, guild_id: int, collection: str) -> list[dict]:
+        return self.fetch(SQLCommands.GET_IMAGES_BY_COLLECTION.value, (guild_id, collection), all=True)
+
+    def getCollections(self, guild_id: int) -> list[str]:
+        rows = self.fetch(SQLCommands.GET_ALL_COLLECTIONS.value, (guild_id,), all=True)
+        return [row["collection"] for row in rows]
 
     def __del__(self):
         self.disconnect()

@@ -1,10 +1,8 @@
-import os
-import shutil
 import discord
 from enum import Enum
 import json
-from interface.interface_json import IF_JSON
-from interface.interface_database import IF_Database, SQLCommands
+from sql.SQLCommands import SQLCommands
+from interface.interface_database import IF_Database
 
 class ChannelType(Enum):
     STARBOARD = 0,
@@ -12,9 +10,11 @@ class ChannelType(Enum):
     SILLY = 2,
     STAFF = 3,
     STAFFLOG = 4,
-    IGNORE = 5
+    IGNORE = 5,
+    QUOTEBOOK = 6
 
 TYPEMAPPING = {
+    ChannelType.QUOTEBOOK: "quotebook",
     ChannelType.STARBOARD: "starboard",
     ChannelType.ART: "art",
     ChannelType.SILLY: "silly",
@@ -34,7 +34,7 @@ TEMPLATE = {
     "chatcompletions": False,
     "sensitive_content": ["hate", "harassment", "sexual", "self-harm"],
     "chances": { "OnSpeaking": 95, "OnDelete": 80, "BroWent": 10, "Response": 95 },
-    "channel": { "whitelist": True, "blacklist": False, "starboard": [], "art": [], "silly": [], "staff-log": [], "ignore": []},
+    "channel": { "Quotebook": [], "whitelist": True, "blacklist": False, "starboard": [], "art": [], "silly": [], "staff-log": [], "ignore": []},
     "role": { "staff": 1, "owner": 0 },
     "member": { "thoustCreatoreth": 752989978535002134 }
 }
@@ -60,10 +60,7 @@ class IF_Guild:
 
         # Init DB
         self.db = IF_Database()
-        msg = await self.db.connect()
-        if "Error" in msg:
-            print(msg)
-            return
+        await self.db.connect()
         # Load Config from DB
         self.Config = await self.loadConfig()
         await self._sync_dbconfig()
@@ -194,3 +191,48 @@ class IF_Guild:
     
     def getChance(self, key: str) -> int:
         return self.Config.get("chances", {}).get(key, 100)
+    
+    async def setChannelType(self, channel_id: int, channel_type: ChannelType) -> bool:
+        config_key = TYPEMAPPING.get(channel_type)
+        if config_key is None:
+            return False
+
+        channels = self.Config.get("channel", {}).get(config_key, [])
+
+        if channel_id in channels:
+            # Already present
+            return False
+
+        channels.append(channel_id)
+        self.Config["channel"][config_key] = channels
+
+        return await self._saveChannelsConfig()
+
+    async def unsetChannelType(self, channel_id: int, channel_type: ChannelType) -> bool:
+        config_key = TYPEMAPPING.get(channel_type)
+        if config_key is None:
+            return False
+
+        channels = self.Config.get("channel", {}).get(config_key, [])
+
+        if channel_id not in channels:
+            # Not present
+            return False
+
+        channels.remove(channel_id)
+        self.Config["channel"][config_key] = channels
+
+        return await self._saveChannelsConfig()
+
+    async def _saveChannelsConfig(self) -> bool:
+        try:
+            # Ensure DB connected
+            await self.db.connect()
+
+            channels_json = json.dumps(self.Config.get("channel", {}))
+            query = SQLCommands.UPDATE_GUILD_CONFIG.value.format("channels = %s")
+            self.db.query(query, (channels_json, self.guildID))
+            return True
+        except Exception as e:
+            print(f"[GUILD] Failed to save channel config: {e}")
+            return False

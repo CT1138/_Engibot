@@ -1,14 +1,33 @@
-from openai import OpenAI
-from interface.interface_json import IF_JSON
-from interface.interface_guild import IF_Guild
 import discord
+from openai import OpenAI
+from interface.interface_guild import IF_Guild
 
-TOKENS = IF_JSON("./__data/tokens.json").json
-client = OpenAI(api_key=TOKENS["openai"])
+client = OpenAI()
 
 modModel = "omni-moderation-latest"
+with open("./__data/aiPrompt.txt", "r", encoding="utf-8") as file:
+    basePrompt = file.read()
 
-class AIModerator:
+
+class IF_GPT:
+    def __init__(self, model="gpt-4o", temperature=0.2, systemPrompt=""):
+        self.model=model
+        self.temperature=temperature
+        self.systemPrompt=systemPrompt + "\n" + basePrompt
+
+    def chat(self, input, additionalprompt=""):
+        input.insert(0, {"role": "system", "content": additionalprompt})
+        input.insert(0, {"role": "system", "content": basePrompt})
+        print(f"input: {input}")
+        response = client.responses.create(
+            model=self.model,
+            input=input,
+            temperature=self.temperature
+            )
+        print(f"output: {response.output_text}")
+        return response.output_text
+    
+class IF_MODERATOR:
     def __init__(self, guild: discord.Guild):
         self.GUILD = IF_Guild(guild)
         self.categories_to_flag = []
