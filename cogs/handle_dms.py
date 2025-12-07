@@ -1,8 +1,9 @@
 import discord, dotenv, os
 from interface.interface_openai import IF_GPT
 from discord.ext import commands as dCommands
+from datetime import datetime, timedelta
 
-MAX_MESSAGE_LENGTH = os.getenv("MAX_MESSAGE_LENGTH")
+MAX_MESSAGE_LENGTH = int(os.getenv("MAX_MESSAGE_LENGTH") or 2000)
 
 class hDirectMessages(dCommands.Cog):
     def __init__(self, bot):
@@ -44,7 +45,7 @@ class hDirectMessages(dCommands.Cog):
         try:
             async with message.channel.typing():
                 conversation = await self.historyToChatStruct(message.channel)
-                response = self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
+                response = await self.gpt.chat(input=conversation, additionalprompt=systemPrompt)
         except Exception as e:
             response = f"Sorry, I had a problem processing your request....\n{e}"
         for chunk in self.split_message(response):

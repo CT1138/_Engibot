@@ -43,11 +43,11 @@ class hFun(dCommands.Cog):
             RESPONSE = await self.response.getLast("random", result_type=ResultType.RESPONSE)
             URL = await self.response.getLast("random", result_type=ResultType.URL)
         else:
-            RESPONSE = await self.response.get("random", aiIndex=index, result_type=ResultType.RESPONSE)
-            URL = await self.response.get("random", aiIndex=index, result_type=ResultType.URL)
+            RESPONSE = await self.response.get("random", index, result_type=ResultType.RESPONSE)
+            URL = await self.response.get("random", index, result_type=ResultType.URL)
 
-        await ctx.message.channel.send(RESPONSE)
-        await ctx.message.channel.send(URL)
+        if RESPONSE: await ctx.message.channel.send(RESPONSE)
+        if URL: await ctx.message.channel.send(URL)
         await ctx.defer()
 
     @fun.command("memory", with_app_command=True, description="Get a random memory")

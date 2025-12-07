@@ -7,14 +7,11 @@ from sql.SQLCommands import SQLCommands
 
 class IF_Database:
     def __init__(self):
-        print("[DB] Initializing MariaDB connection...")
         HOST = os.getenv("MARIADB_HOST", "localhost")
         USER = os.getenv("MARIADB_USERNAME", "engibot")
         PORT = int(os.getenv("MARIADB_PORT", 3306))
         PASSWORD=os.getenv("MARIADB_PASSWORD", "password")
         DATABASE=os.getenv("MARIADB_DATABASE", "engibot")
-        print(f"[DB] Connecting to MariaDB at {HOST}:{PORT}, Database: {DATABASE}, User: {USER}")
-
         self.config = {
             'host': HOST,
             'user': USER,
@@ -34,11 +31,8 @@ class IF_Database:
             self.cursor.execute("SET CHARACTER SET utf8mb4;")
             self.cursor.execute("SET character_set_connection=utf8mb4;")
 
-            msg = "[DB] Successfully connected to MariaDB."
-            print()
             return True
         except Error as e:
-            msg = f"[DB] Error connecting to MariaDB: {e}"
             sys.exit(e)
             return True
 

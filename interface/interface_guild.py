@@ -35,7 +35,7 @@ TEMPLATE = {
     "sensitive_content": ["hate", "harassment", "sexual", "self-harm"],
     "chances": { "OnSpeaking": 95, "OnDelete": 80, "BroWent": 10, "Response": 95 },
     "channel": { "Quotebook": [], "whitelist": True, "blacklist": False, "starboard": [], "art": [], "silly": [], "staff-log": [], "ignore": []},
-    "role": { "staff": 1, "owner": 0 },
+    "role": { "staff": 1, "owner": 0, "member": 0 },
     "member": { "thoustCreatoreth": 752989978535002134 }
 }
 
@@ -64,6 +64,7 @@ class IF_Guild:
         # Load Config from DB
         self.Config = await self.loadConfig()
         await self._sync_dbconfig()
+        return self
         
     async def _sync_dbconfig(self):
         # Pull current DB config
@@ -167,6 +168,13 @@ class IF_Guild:
 
     def getRoleByID(self, id: int) -> int:
         return self.guild.get_role(id)
+    
+    def getRoleByType(self, type: str) -> discord.Role:
+        role_config = self.Config.get("role", {})
+        role_id = role_config.get(type)
+        if role_id is None:
+            return None
+        return self.guild.get_role(role_id)
     
     def getChannelType(self, id: int) -> ChannelType:
         for enum_type, key in TYPEMAPPING.items():
