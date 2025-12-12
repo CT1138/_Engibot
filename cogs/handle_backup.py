@@ -1,6 +1,6 @@
 from discord.ext import commands as dCommands
 from enum import Enum
-from Discord import discord
+import discord
 
 class ChannelType(Enum):
     ORIGINAL=0,
@@ -38,25 +38,25 @@ class hBackup(dCommands.Cog):
 
     # Channel Update
     @dCommands.listener()
-    async def on_channel_update(self, before, after):
+    async def on_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
         print(f"Channel Update!\nBefore: {before}\nAfter: {after}")
         return
 
     # Role Created
     @dCommands.listener()
-    async def on_role_create(self, role):
+    async def on_role_create(self, role: discord.Role):
         print(f"Role Created!\n{role}")
         return
 
     # Role Deleted
     @dCommands.listener()
-    async def on_role_delete(self, role):
+    async def on_role_delete(self, role: discord.Role):
         print(f"Role Deleted!\n{role}")
         return
 
     # Emoji update
     @dCommands.listener()
-    async def on_guild_emojis_update(self, before, after):
+    async def on_guild_emojis_update(self, before: discord.Emoji, after: discord.Emoji):
         print(f"Emojis Updated!\nBefore: {before}\nAfter: {after}")
         return
 
