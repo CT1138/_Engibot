@@ -36,3 +36,4 @@ class SQLCommands(Enum):
     INSERT_IMAGE = "INSERT INTO images (guild_id, author_id, collection, filepath) VALUES (%s, %s, %s, %s)"
     GET_IMAGES_BY_COLLECTION = "SELECT * FROM images WHERE guild_id = %s AND collection = %s"
     GET_ALL_COLLECTIONS = "SELECT DISTINCT collection FROM images WHERE guild_id = %s"
+    ADD_BACKUP = "INSERT INTO"

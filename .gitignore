@@ -4,6 +4,7 @@
 *.env
 
 __data/tokens.json
+__data/github.private
 __data/starboard_cache.json
 __data/guild/*
 !__data/guild/template.env

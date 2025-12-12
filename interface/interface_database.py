@@ -33,7 +33,7 @@ class IF_Database:
 
             return True
         except Error as e:
-            sys.exit(e)
+            print(e)
             return True
 
     def disconnect(self):

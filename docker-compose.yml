@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: engibot
+    networks:
+      - engibot_network
     ports:
       - "6934:6934"
     volumes:
@@ -13,6 +15,8 @@ services:
   db:
     image: mariadb:11
     container_name: engibot_db
+    networks:
+      - engibot_network
     env_file:
       - ./__data/mariadb.env
     volumes:
@@ -22,3 +26,5 @@ services:
 
 volumes:
   mariadb_data:
+networks:
+  engibot_network:
