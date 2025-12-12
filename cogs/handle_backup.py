@@ -19,43 +19,43 @@ class hBackup(dCommands.Cog):
         await ctx.send("goon")
 
     # Server Updated
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_guild_update(self, before: discord.abc.Guild, after: discord.abc.Guild):
         print(f"Guild Updated!\nBefore: {before}\nAfter: {after}")
         return
 
     # Channel Created
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
         print(f"Channel Created!\n{channel}")
         return
 
     # Channel Deleted
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
         print(f"Channel Deleted!\n{channel}")
         return
 
     # Channel Update
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
         print(f"Channel Update!\nBefore: {before}\nAfter: {after}")
         return
 
     # Role Created
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_role_create(self, role: discord.Role):
         print(f"Role Created!\n{role}")
         return
 
     # Role Deleted
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_role_delete(self, role: discord.Role):
         print(f"Role Deleted!\n{role}")
         return
 
     # Emoji update
-    @dCommands.listener()
+    @dCommands.cog.listener()
     async def on_guild_emojis_update(self, before: discord.Emoji, after: discord.Emoji):
         print(f"Emojis Updated!\nBefore: {before}\nAfter: {after}")
         return
